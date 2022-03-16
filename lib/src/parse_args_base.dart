@@ -65,5 +65,3 @@ void parseArgs(List<String> args, ParseArgsHandler handler) {
 
   // Finish
 }
-
-//////////////////////////////////////////////////
