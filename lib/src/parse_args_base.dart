@@ -29,7 +29,7 @@ void parseArgs(List<String> args, ParseArgsHandler handler) {
 
     // Get the option name if encountered
 
-    var isOption = (!isValueOnly && arg.startsWith(optNamePrefix)); 
+    var isOption = (!isValueOnly && arg.startsWith(optNamePrefix));
     var optName = (isOption ? arg : '');
     var optNorm = optName.replaceAll(optNamePrefix, '').toLowerCase();
 
@@ -49,7 +49,9 @@ void parseArgs(List<String> args, ParseArgsHandler handler) {
         continue;
       }
 
-      if (!isValueOnly && arg.startsWith(optNamePrefix) && (arg != optNamePrefix)) {
+      if (!isValueOnly &&
+          arg.startsWith(optNamePrefix) &&
+          (arg != optNamePrefix)) {
         break;
       }
 

@@ -22,13 +22,20 @@ void main() {
     });
     test('similar options', () {
       opts.clear();
-      parseArgs(['-appconfig', '--appconfig', '-app-config', '--app-config', '-AppConfig'], onParse);
+      parseArgs([
+        '-appconfig',
+        '--appconfig',
+        '-app-config',
+        '--app-config',
+        '-AppConfig'
+      ], onParse);
       expect(opts.length, 1);
       expect(opts.containsKey('appconfig'), true);
     });
     test('multiple values', () {
       opts.clear();
-      parseArgs(['-opt1', 'v11', '--opt2', 'v21', '-', 'v22', '--', '-v23'], onParse);
+      parseArgs(
+          ['-opt1', 'v11', '--opt2', 'v21', '-', 'v22', '--', '-v23'], onParse);
       expect(opts.length, 2);
       expect(opts['opt1']?.length, 1);
       expect(opts['opt2']?.length, 4);

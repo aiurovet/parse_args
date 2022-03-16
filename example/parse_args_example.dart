@@ -95,8 +95,7 @@ void init(Options options, List<String> args) {
       default:
         if (optName.isEmpty) {
           printUsage('${Options.appName} does not support plain arguments');
-        }
-        else {
+        } else {
           printUsage('Invalid option: "$optName"');
         }
     }
