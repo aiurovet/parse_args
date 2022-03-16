@@ -1,7 +1,3 @@
-# parse_args
-
-(c) Alexander Iurovetski 2022
-
 A Dart package to parse command-line options simple way and in a portable style (bash/find/java/PowerShell).
 
 ## Features
