@@ -1,10 +1,10 @@
-A Dart package to parse command-line options simple way and in a portable style (bash/find/java/PowerShell).
+A getopts-like Dart package to parse command-line options simple way and in a portable style (bash/find/java/PowerShell).
 
 ## Features
 
-Comprises a single function `parseArgs` which does the only thing: it recognises options, i.e. any word prefixed with а dash `-`, then accumulates all possible values (every arg until the next option) and calls a user-defined function.
+Comprises a single function `parseArgs` which does the only thing: it recognises options, i.e. any word prefixed with а dash `-`, then accumulates all possible values (every arg until the next option), validates against the user-defined format and calls a user-defined function handler.
 
-The rest is imposed on the application. You don't need to define every option separately (either as a member attribute or as some collection element), you can recognise the actual options using regular expressions, but you should validate every value and print the usage yourself.
+The rest is imposed on the application. You don't need to define every option separately (either as a member attribute or as some collection element), you can specify as many names for each option as you like, you can specify the type of each option value.
 
 Every option name is passed lowercased as well as stripped off any leading or trailing space and dash. This allows specifying option names either as `-i` or `--inp-files` (default bash-like), `-inpfiles` (find- and java-like) or as `-InpFiles` (PowerShell-like).
 
@@ -13,6 +13,14 @@ The function allows a bit 'weird' and even 'incorrect' way of passing multiple o
 The function does not allow bundling for short (single-character) option names, but this generally encourages the use of long option names.
 
 The function also does not support negation by the use of plus `+` rather than dash `-`.
+
+## Special features
+
+You are guaranteed the arguments will be processed in the order of appearance in the option definitions (i.e. the outer loop is through the option definitions, and the inner one is through the actual arguments).
+
+It comes in handy if you allow passing an option for the logging mode (like _quiet_ or _verbose_), as it might impact even the process of parsing options itself. So you simply define those before the others.
+
+Or you'd like to ensure that the start-in directory will be processed before the filenames/subpaths.
 
 ## Usage
 
@@ -121,7 +129,6 @@ void init(Options options, List<String> args) {
           printUsage('Invalid option: "$optName"');
         }
     }
-    return true; // continue
   });
 }
 

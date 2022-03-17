@@ -1,13 +1,12 @@
 import 'dart:io';
 import 'package:parse_args/parse_args.dart';
 
-////////////////////////////////////////////////////////////////////////////////
-// Application options
-////////////////////////////////////////////////////////////////////////////////
+/// Application options
 
 class Options {
-  static const String appName = 'sampleapp';
-  static const String appVersion = '2.0.1';
+  static const appName = 'sampleapp';
+  static const appVersion = '2.0.1';
+  static const optDefStr = '?,h,help|q,quiet|v,verbose||c,appconfig:|d,dir:|f,force|i,inp,input::|o,out,output::|p,compression:i';
 
   var _appConfigPath = '';
   get appConfigPath => _appConfigPath;
@@ -32,119 +31,65 @@ class Options {
 
   final _outputFiles = <String>[];
   get outputFiles => _outputFiles;
-}
 
-////////////////////////////////////////////////////////////////////////////////
-// Sample application's command-line parser
-////////////////////////////////////////////////////////////////////////////////
+  /// Sample application's command-line parser
 
-void init(Options options, List<String> args) {
-  int? intValue;
+  void parse(List<String> args) {
+    parseArgs(optDefStr, args, (optName, values) {
+      switch (optName) {
+        case '':
+          if (optName.isEmpty) {
+            printUsage('${Options.appName} does not support plain arguments');
+          }
+          break;
+        case '?':
+        case 'h':
+        case 'help':
+          printUsage();
+        case 'c':
+        case 'appconfig':
+          _appConfigPath = values[0];
+          break;
+        case 'd':
+        case 'dir':
+          _startDirName = values[0];
+          break;
+        case 'f':
+        case 'force':
+          _isForced = true;
+          break;
+        case 'i':
+        case 'inp':
+        case 'input':
+          _inputFiles.addAll(values as List<String>);
+          break;
+        case 'o':
+        case 'out':
+        case 'output':
+          _outputFiles.addAll(values as List<String>);
+          break;
+        case 'p':
+        case 'compression':
+          _compression = values[0];
+          break;
+        case 'q':
+        case 'quiet':
+          _isQuiet = true;
+          break;
+        case 'v':
+        case 'verbose':
+          _isVerbose = true;
+          break;
+        default:
+          break;
+      }
+    });
+  }
 
-  parseArgs(args, (optName, values) {
-    switch (optName) {
-      case '?':
-      case 'h':
-      case 'help':
-        printUsage();
-      case 'c':
-      case 'appconfig':
-        if (values.length != 1) {
-          printUsage('Unable to determine application configuration file');
-        }
-        options._appConfigPath = values[0];
-        break;
-      case 'd':
-      case 'dir':
-        if (values.length > 1) {
-          printUsage('Unable to determine the directory to start in');
-        }
-        options._startDirName = values[0];
-        break;
-      case 'f':
-      case 'force':
-        options._isForced = true;
-        break;
-      case 'i':
-      case 'in':
-      case 'input':
-        options._inputFiles.addAll(values);
-        break;
-      case 'o':
-      case 'out':
-      case 'output':
-        options._outputFiles.addAll(values);
-        break;
-      case 'p':
-      case 'compression':
-        if (values.length != 1) {
-          printUsage('Unable to determine compression');
-        }
-        intValue = int.tryParse(values[0]);
-        if (intValue == null) {
-          printUsage('Invalid compression value: ${values[0]}');
-        }
-        options._compression = intValue ?? options._compression;
-        break;
-      case 'q':
-      case 'quiet':
-      case 'v':
-      case 'verbose':
-        // All logging options were parsed already
-        break;
-      default:
-        if (optName.isEmpty) {
-          printUsage('${Options.appName} does not support plain arguments');
-        } else {
-          printUsage('Invalid option: "$optName"');
-        }
-    }
-    return true; // continue
-  });
-}
+  /// Displaying the help and optionally, an error message
 
-////////////////////////////////////////////////////////////////////////////////
-// Sample application's logging command-line options parser
-//
-// This needs to be done before the rest of the application options parsing in
-// order to ensure all logging complies the options passed
-////////////////////////////////////////////////////////////////////////////////
-
-void initLogging(Options options, List<String> args) {
-  parseArgs(args, (optName, values) {
-    switch (optName) {
-      case 'q':
-      case 'quiet':
-        options._isQuiet = true;
-        break;
-      case 'v':
-      case 'verbose':
-        options._isVerbose = true;
-        break;
-    }
-    return true;
-  });
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Sample application entry point
-////////////////////////////////////////////////////////////////////////////////
-
-void main(List<String> args) {
-  var options = Options();
-
-  initLogging(options, args);
-  init(options, args);
-
-  // the rest of processing
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Sample application entry point
-////////////////////////////////////////////////////////////////////////////////
-
-Never printUsage([String? error]) {
-  stderr.writeln('''
+  Never printUsage([String? error]) {
+    stderr.writeln('''
 
 ${Options.appName} ${Options.appVersion} (c) My Name 2022
 
@@ -172,5 +117,23 @@ ${Options.appName} -AppConfig default.json --dir somedir/Documents -in a*.txt ..
 ${(error == null) || error.isEmpty ? '' : '*** ERROR: $error'}
 ''');
 
-  exit(1);
+    exit(1);
+  }
+}
+
+/// Sample application entry point
+
+void main(List<String> args) {
+  try {
+    var o = Options();
+    o.parse(args);
+
+    // the rest of processing
+  } on OptException catch (e) {
+    e.print();
+  } on Exception catch (e) {
+    stderr.writeln(e.toString());
+  } on Error catch (e) {
+    stderr.writeln(e.toString());
+  }
 }

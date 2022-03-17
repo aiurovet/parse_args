@@ -1,19 +1,28 @@
+import 'package:parse_args/src/opt_def.dart';
+
 /// A type for the user-defined handler which gets called on every option
 /// with the list of values (non-optional arguments between this option
-/// and the next one)
+/// and the next one).
 
-typedef ParseArgsHandler = bool Function(String optName, List<String> values);
+typedef ParseArgsHandler = void Function(String name, List values);
 
 /// Loops through all command-line arguments [args], determines options,
-/// collects possible values and calls a user-defined [handler]
+/// collects possible values, validates those against the [format] and
+/// calls a user-defined [handler]. Optional [format] should be defined
+/// as a space-separated list string. Use a single colon for a single
+/// value, two colons for multiple values, _b_ for binary int, _i_ for
+/// decimal int, _o_ for octal int, _x_ for hex int, _f_ for floating point.
+/// 
+/// Example: r'\\?,h,help f,force i,inpfiles:: m,min:i n,max:i r,rate:f'
 
-void parseArgs(List<String> args, ParseArgsHandler handler) {
-  final optNamePrefix = '-';
-  final optNameStop = '--';
+void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
+  final optStop = '--';
 
+  var optDefs = OptDef.listFromString(optDefStr);
+  
   var argCount = args.length;
+  var argMap = <String, List>{};
   var isValueOnly = false;
-  var values = <String>[];
 
   // Loop through all arguments
 
@@ -22,16 +31,17 @@ void parseArgs(List<String> args, ParseArgsHandler handler) {
 
     // If found an indicator of the end of options, don't treat any further argument as an option
 
-    if (arg == optNameStop) {
+    if (arg == optStop) {
       isValueOnly = true;
       continue;
     }
 
     // Get the option name if encountered
 
-    var isOption = (!isValueOnly && arg.startsWith(optNamePrefix));
-    var optName = (isOption ? arg : '');
-    var optNorm = optName.replaceAll(optNamePrefix, '').toLowerCase();
+    var isOption = (!isValueOnly && arg.startsWith(OptDef.optPrefix));
+    var name = (isOption ? arg : '');
+    var normName = OptDef.normalize(name);
+    var optDef = OptDef.find(optDefs, normName);
 
     if (isOption) {
       ++argNo;
@@ -39,30 +49,39 @@ void parseArgs(List<String> args, ParseArgsHandler handler) {
 
     // Populate the list of values for the current option (all arguments beyond that and prior to the next one)
 
-    values = [];
+    var values = [];
 
     for (; argNo < argCount; argNo++) {
       arg = args[argNo];
 
-      if (arg == optNameStop) {
+      if (arg == optStop) {
         isValueOnly = true;
         continue;
       }
 
       if (!isValueOnly &&
-          arg.startsWith(optNamePrefix) &&
-          (arg != optNamePrefix)) {
+          arg.startsWith(OptDef.optPrefix) &&
+          (arg != OptDef.optPrefix)) {
         break;
       }
 
-      values.add(arg);
+      values.add(optDef.toTypedValue(normName, arg));
     }
 
-    // Call the user-defined handler for the actual application processing
+    // Find the option definition (throws exception if not found) and store in the arg map
 
-    if (!handler(optNorm, values)) {
-      break;
-    }
+    optDef.validateMode(normName, values.length);
+    argMap[normName] = values;
+  }
+
+  // Call the user-defined handler for the actual processing in the order of appearance of definitions
+
+  for( var x in optDefs) {
+    argMap.forEach((name, values) {
+      if (x.names.contains(name)) {
+        handler(name, values);
+      }
+    });
   }
 
   // Finish
