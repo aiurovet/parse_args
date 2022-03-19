@@ -63,7 +63,7 @@ class OptValueTypeException extends OptException {
 }
 
 ///
-/// When encountered an option with value(s) intead of a flag
+/// When encountered an option with value(s) instead of a flag
 ///
 class OptValueUnexpectedException extends OptException {
   @override String get description => 'Value is not expected ';
