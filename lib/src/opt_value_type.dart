@@ -14,5 +14,5 @@ enum OptValueType {
   hex, // hexadecimal int (radix= 16)
   num, // floating point
   oct, // octal in (radix = 10)
-  str  // string
+  str // string
 }

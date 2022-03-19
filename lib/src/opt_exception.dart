@@ -18,19 +18,20 @@ class OptException implements Exception {
     details = '"$name"${hasValue ? ': ${values.toString()}' : ''}';
   }
 
-  @override String toString() {
+  @override
+  String toString() {
     return '$description - $details';
   }
 
-  void print() =>
-    stderr.writeln(toString());
+  void print() => stderr.writeln(toString());
 }
 
 ///
 /// When encountered an unrecognised option
 ///
 class OptNameException extends OptException {
-  @override String get description => 'Invalid option';
+  @override
+  String get description => 'Invalid option';
 
   OptNameException(optName) : super(optName);
 }
@@ -39,7 +40,8 @@ class OptNameException extends OptException {
 /// When encountered an option with no value
 ///
 class OptValueMissingException extends OptException {
-  @override String get description => 'Missing value';
+  @override
+  String get description => 'Missing value';
 
   OptValueMissingException(optName) : super(optName);
 }
@@ -48,7 +50,8 @@ class OptValueMissingException extends OptException {
 /// When encountered an option with more than one value when only one expected
 ///
 class OptValueTooManyException extends OptException {
-  @override String get description => 'Too many values';
+  @override
+  String get description => 'Too many values';
 
   OptValueTooManyException(optName, [values]) : super(optName, values);
 }
@@ -57,7 +60,8 @@ class OptValueTooManyException extends OptException {
 /// When failed either to recognise the verb or to parse the string value
 ///
 class OptValueTypeException extends OptException {
-  @override String get description => 'Bad value type';
+  @override
+  String get description => 'Bad value type';
 
   OptValueTypeException(optName, [values]) : super(optName, values);
 }
@@ -66,7 +70,8 @@ class OptValueTypeException extends OptException {
 /// When encountered an option with value(s) instead of a flag
 ///
 class OptValueUnexpectedException extends OptException {
-  @override String get description => 'Value is not expected ';
+  @override
+  String get description => 'Value is not expected ';
 
   OptValueUnexpectedException(optName, [values]) : super(optName, values);
 }

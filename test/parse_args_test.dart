@@ -29,13 +29,16 @@ void main() {
     });
     test('similar options', () {
       opts.clear();
-      parseArgs('verbose|appconfig', [
-        '-appconfig',
-        '--appconfig',
-        '-app-config',
-        '--app-config',
-        '-AppConfig'
-      ], onParse);
+      parseArgs(
+          'verbose|appconfig',
+          [
+            '-appconfig',
+            '--appconfig',
+            '-app-config',
+            '--app-config',
+            '-AppConfig'
+          ],
+          onParse);
       expect(opts.length, 1);
       expect(opts.containsKey('appconfig'), true);
     });
@@ -49,8 +52,22 @@ void main() {
     });
     test('numeric values', () {
       opts.clear();
-      parseArgs('bit:b|decs::i|hex:x|oct:o|num:f',
-          ['-bit', '101', '-decs', '7', '89', '-hex', 'AF', '-oct', '755', '-num', '1.23'], onParse);
+      parseArgs(
+          'bit:b|decs::i|hex:x|oct:o|num:f',
+          [
+            '-bit',
+            '101',
+            '-decs',
+            '7',
+            '89',
+            '-hex',
+            'AF',
+            '-oct',
+            '755',
+            '-num',
+            '1.23'
+          ],
+          onParse);
       expect(opts.length, 5);
       expect(opts['bit']?[0], 5);
       expect(opts['decs']?[0], 7);

@@ -7,7 +7,8 @@ import 'package:parse_args/src/opt_def.dart';
 /// with the list of values (non-optional arguments between this option
 /// and the next one).
 
-typedef ParseArgsHandler = void Function(bool isFirstRun, String name, List values);
+typedef ParseArgsHandler = void Function(
+    bool isFirstRun, String name, List values);
 
 /// Loops through all command-line arguments [args], determines options,
 /// collects possible values, validates those against the [format] and
@@ -15,7 +16,7 @@ typedef ParseArgsHandler = void Function(bool isFirstRun, String name, List valu
 /// as a space-separated list string. Use a single colon for a single
 /// value, two colons for multiple values, _b_ for binary int, _i_ for
 /// decimal int, _o_ for octal int, _x_ for hex int, _f_ for floating point.
-/// 
+///
 /// Example: r'\\?,h,help f,force i,inpfiles:: m,min:i n,max:i r,rate:f'
 
 void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
@@ -23,7 +24,7 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
 
   var optDefs = OptDef.listFromString(optDefStr);
   var isMultiRun = (OptDef.find(optDefs, OptDef.optMultiRun) != null);
-  
+
   var argCount = args.length;
   var argMap = <String, List>{};
   var isValueOnly = false;
@@ -79,13 +80,16 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
     // Find the option definition (throws exception if not found) and store in the arg map
 
     optDef?.validateMode(normName, values.length);
-    var lastNorm = (optDef == null ? normName : optDef.names[optDef.names.length - 1]);
+    var lastNorm =
+        (optDef == null ? normName : optDef.names[optDef.names.length - 1]);
     argMap[lastNorm] = values;
   }
 
   // Call the user-defined handler for the actual processing in the order of appearance of definitions
 
-  for (var step = 1, lastStep = (isMultiRun ? 2 : 1); step <= lastStep; step++) {
+  for (var step = 1, lastStep = (isMultiRun ? 2 : 1);
+      step <= lastStep;
+      step++) {
     argMap.forEach((name, values) {
       handler((step == 1), name, values);
     });

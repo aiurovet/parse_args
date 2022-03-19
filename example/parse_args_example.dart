@@ -46,8 +46,9 @@ class Options {
   /// Sample application's command-line parser
 
   void parse(List<String> args) {
-    parseArgs('+|q,quiet|v,verbose|?,h,help|c,app-config:|d,dir:|f,force|i,inp,inp-files::|o,out,out-files::|p,compression:i',
-              args, (isFirstRun, optName, values) {
+    parseArgs(
+        '+|q,quiet|v,verbose|?,h,help|c,app-config:|d,dir:|f,force|i,inp,inp-files::|o,out,out-files::|p,compression:i',
+        args, (isFirstRun, optName, values) {
       if (isFirstRun) {
         switch (optName) {
           case 'compression':
@@ -70,8 +71,7 @@ class Options {
           default:
             return;
         }
-      }
-      else {
+      } else {
         printVerbose('Parsing $optName => $values');
 
         // No need to assign any option value here if it does not depend on another option value
@@ -114,11 +114,19 @@ class Options {
 
   /// A very simple info logger
 
-  void printInfo(String line) { if (!_isQuiet) { print(line); } }
+  void printInfo(String line) {
+    if (!_isQuiet) {
+      print(line);
+    }
+  }
 
   /// A very simple verbose logger
 
-  void printVerbose(String line) { if (!_isQuiet && _isVerbose) { print(line); } }
+  void printVerbose(String line) {
+    if (!_isQuiet && _isVerbose) {
+      print(line);
+    }
+  }
 
   /// Displaying the help and optionally, an error message
 

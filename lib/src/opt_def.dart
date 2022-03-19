@@ -10,7 +10,6 @@ import 'package:parse_args/src/opt_value_type.dart';
 /// of application arguments as well as validate its name and possible values
 
 class OptDef {
-
   // Constants: special characters in options definition strings
 
   static const defSeparator = '|';
@@ -21,7 +20,8 @@ class OptDef {
 
   /// Constants: option name validator
 
-  static final RegExp nameChecker = RegExp(r'^([a-z]+[a-z0-9]*|[0-9]+)|$', caseSensitive: false);
+  static final RegExp nameChecker =
+      RegExp(r'^([a-z]+[a-z0-9]*|[0-9]+)|$', caseSensitive: false);
 
   /// Constants: OptValueType => radix mapping
 
@@ -99,7 +99,8 @@ class OptDef {
         valueTypeStr = optDefStrNorm[typePos];
       }
 
-      optDefStrNorm = optDefStrNorm.substring(0, (valueMode == OptValueMode.multiple ? valuePos - 1 : valuePos));
+      optDefStrNorm = optDefStrNorm.substring(
+          0, (valueMode == OptValueMode.multiple ? valuePos - 1 : valuePos));
     }
 
     // Break the list of names, normalize and validate those, then add to the names list
@@ -119,13 +120,11 @@ class OptDef {
     if (isFlag) {
       valueType = OptValueType.nil;
       radix = null;
-    }
-    else {
+    } else {
       if (valueTypeStr.isEmpty) {
         valueType = OptValueType.str;
         radix = null;
-      }
-      else {
+      } else {
         valueType = valueTypeMap[valueTypeStr] ?? OptValueType.nil;
 
         if (valueType == OptValueType.nil) {
@@ -139,11 +138,12 @@ class OptDef {
 
   /// Find an option definition by the option name
 
-  static OptDef? find(List<OptDef> optDefs, String name, {bool canThrow = false}) {
+  static OptDef? find(List<OptDef> optDefs, String name,
+      {bool canThrow = false}) {
     if (optDefs.isEmpty) {
       return null;
     }
-    
+
     for (var optDef in optDefs) {
       if (optDef.names.contains(name)) {
         return optDef;
@@ -152,8 +152,7 @@ class OptDef {
 
     if (canThrow) {
       throw OptNameException(name);
-    }
-    else {
+    } else {
       return null;
     }
   }
@@ -190,7 +189,7 @@ class OptDef {
   /// Make a normalized option: no space, no dash, lowercase
 
   static String normalize(String name) =>
-    name.replaceAll(' ', '').replaceAll(optPrefix, '').toLowerCase();
+      name.replaceAll(' ', '').replaceAll(optPrefix, '').toLowerCase();
 
   /// Convert a string value [strValue] of an option [name] to the strongly typed one
 
@@ -219,20 +218,20 @@ class OptDef {
   void validateMode(String name, int actualCount) {
     switch (valueMode) {
       case OptValueMode.none:
-        if (actualCount != 0){
+        if (actualCount != 0) {
           throw OptValueMissingException(name);
         }
         break;
       case OptValueMode.single:
-        if (actualCount < 1){
+        if (actualCount < 1) {
           throw OptValueMissingException(name);
         }
-        if (actualCount > 1){
+        if (actualCount > 1) {
           throw OptValueTooManyException(name);
         }
         break;
       case OptValueMode.multiple:
-        if (actualCount < 1){
+        if (actualCount < 1) {
           throw OptValueMissingException(name);
         }
         break;
