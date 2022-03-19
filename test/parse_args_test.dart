@@ -1,3 +1,6 @@
+// Copyright (c) 2022, Alexander Iurovetski
+// All rights reserved under MIT license (see LICENSE file)
+
 import 'package:parse_args/parse_args.dart';
 import 'package:test/test.dart';
 
@@ -62,7 +65,7 @@ void main() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void onParse(String name, List values) {
+void onParse(bool isFirstRun, String name, List values) {
   opts[name] = values;
   print('"$name": $values');
 }

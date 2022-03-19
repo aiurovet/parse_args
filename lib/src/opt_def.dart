@@ -1,3 +1,6 @@
+// Copyright (c) 2022, Alexander Iurovetski
+// All rights reserved under MIT license (see LICENSE file)
+
 import 'package:parse_args/src/opt_exception.dart';
 import 'package:parse_args/src/opt_value_mode.dart';
 import 'package:parse_args/src/opt_value_type.dart';
@@ -12,6 +15,7 @@ class OptDef {
 
   static const defSeparator = '|';
   static const nameSeparator = ',';
+  static const optMultiRun = '+';
   static const optPrefix = '-';
   static const valueMarker = ':';
 
@@ -43,6 +47,10 @@ class OptDef {
 
   late final bool isFlag;
 
+  /// A level (reflects the order no)
+
+  late final int level;
+
   /// A list of option name lists
 
   final List<String> names = [];
@@ -63,7 +71,7 @@ class OptDef {
   /// regex pattern followed by 0 (flag), 1 (single) or 2 (multiple)
   /// colons, then, possibly, by a value type character
 
-  OptDef(String optDefStr) {
+  OptDef(String optDefStr, this.level) {
     var optDefStrNorm = normalize(optDefStr);
     var optDefStrNormLen = optDefStrNorm.length;
     var valuePos = optDefStrNorm.lastIndexOf(valueMarker);
@@ -131,39 +139,52 @@ class OptDef {
 
   /// Find an option definition by the option name
 
-  static OptDef find(List<OptDef> optDefs, String name) {
+  static OptDef? find(List<OptDef> optDefs, String name, {bool canThrow = false}) {
+    if (optDefs.isEmpty) {
+      return null;
+    }
+    
     for (var optDef in optDefs) {
       if (optDef.names.contains(name)) {
         return optDef;
       }
     }
 
-    throw OptNameException(name);
+    if (canThrow) {
+      throw OptNameException(name);
+    }
+    else {
+      return null;
+    }
   }
 
   /// Create a list of option definitions by splitting a space-separated
   /// option definitions string.
 
   static List<OptDef> listFromString(String? optDefStr) {
-    var optDefList = <OptDef>[];
+    var result = <OptDef>[];
 
     if (optDefStr == null) {
-      return optDefList;
+      return result;
     }
 
-    var optDefStrList = optDefStr.trim().split(defSeparator);
+    var list = optDefStr.trim().split(defSeparator);
 
-    if (optDefStrList.isEmpty) {
-      return optDefList;
+    if (list.isEmpty) {
+      return result;
     }
 
-    for (var optDefStr in optDefStrList) {
-      if (optDefStr.isNotEmpty) {
-        optDefList.add(OptDef(optDefStr));
+    var level = 1;
+
+    for (var x in list) {
+      if (x.isEmpty) {
+        ++level;
+      } else {
+        result.add(OptDef(x, level));
       }
     }
 
-    return optDefList;
+    return result;
   }
 
   /// Make a normalized option: no space, no dash, lowercase

@@ -1,0 +1,23 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "parse_args_example",
+      "program": "parse_args_example.dart",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "example",
+      "args": [
+        "-appconfig", "appsettings.json",
+        "-o", "out.txt",
+        "-i", "inp1.txt", "inp2.txt",
+        "-p", "1",
+        "-dir", "top-dir/sub-dir",
+        "-v"
+      ]
+    }
+  ]
+}

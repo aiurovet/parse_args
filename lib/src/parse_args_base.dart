@@ -1,10 +1,13 @@
+// Copyright (c) 2022, Alexander Iurovetski
+// All rights reserved under MIT license (see LICENSE file)
+
 import 'package:parse_args/src/opt_def.dart';
 
 /// A type for the user-defined handler which gets called on every option
 /// with the list of values (non-optional arguments between this option
 /// and the next one).
 
-typedef ParseArgsHandler = void Function(String name, List values);
+typedef ParseArgsHandler = void Function(bool isFirstRun, String name, List values);
 
 /// Loops through all command-line arguments [args], determines options,
 /// collects possible values, validates those against the [format] and
@@ -19,6 +22,7 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
   final optStop = '--';
 
   var optDefs = OptDef.listFromString(optDefStr);
+  var isMultiRun = (OptDef.find(optDefs, OptDef.optMultiRun) != null);
   
   var argCount = args.length;
   var argMap = <String, List>{};
@@ -41,7 +45,7 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
     var isOption = (!isValueOnly && arg.startsWith(OptDef.optPrefix));
     var name = (isOption ? arg : '');
     var normName = OptDef.normalize(name);
-    var optDef = OptDef.find(optDefs, normName);
+    var optDef = OptDef.find(optDefs, normName, canThrow: true);
 
     if (isOption) {
       ++argNo;
@@ -65,22 +69,25 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
         break;
       }
 
-      values.add(optDef.toTypedValue(normName, arg));
+      if (optDef == null) {
+        values.add(arg);
+      } else {
+        values.add(optDef.toTypedValue(normName, arg));
+      }
     }
 
     // Find the option definition (throws exception if not found) and store in the arg map
 
-    optDef.validateMode(normName, values.length);
-    argMap[normName] = values;
+    optDef?.validateMode(normName, values.length);
+    var lastNorm = (optDef == null ? normName : optDef.names[optDef.names.length - 1]);
+    argMap[lastNorm] = values;
   }
 
   // Call the user-defined handler for the actual processing in the order of appearance of definitions
 
-  for( var x in optDefs) {
+  for (var step = 1, lastStep = (isMultiRun ? 2 : 1); step <= lastStep; step++) {
     argMap.forEach((name, values) {
-      if (x.names.contains(name)) {
-        handler(name, values);
-      }
+      handler((step == 1), name, values);
     });
   }
 
