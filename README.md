@@ -2,25 +2,23 @@ A getopts-like Dart package to parse command-line options simple way and in a po
 
 ## Features
 
-Comprises a single function `parseArgs` which does the only thing: it recognises options, i.e. any word prefixed with а dash `-`, then accumulates all possible values (every arg until the next option), validates against the user-defined format and calls a user-defined function handler.
+Comprises a function `parseArgs` and several custom exception classes. The function recognises options, i.e. any word prefixed with а dash `-`, then accumulates all possible values (every arg until the next option), validates against the user-defined format and calls a user-defined function handler.
 
-The rest is imposed on the application. You don't need to define every option separately (either as a member attribute or as some collection element), you can specify as many names for each option as you like, you can specify the type of each option value.
+It might either accept any option and treat all its possible values as strings (compatibility with older versions), or validate those using an options definitions string (the first parameter). Let's have a look at an example of such string:
 
-Every option name is passed lowercased as well as stripped off any leading or trailing space and dash. This allows specifying option names either as `-i` or `--inp-files` (default bash-like), `-inpfiles` (find- and java-like) or as `-InpFiles` (PowerShell-like).
+`+|q,quiet|v,verbose|?,h,help|c,app-config:|d,dir:|f,force|i,inp,inp-files::|o,out,out-files::|p,compression:i`
 
-The function allows a bit 'weird' and even 'incorrect' way of passing multiple option values. This, however, simplifies the case and makes obsolete the need to have plain arguments (the ones without an option). You can still have plain arguments, but you should place those in front of the first option.
+- Every option definition is separated by the pipe `|` character.
+- If the whole string starts with `+|`, it means we need an extra run through the list of arguments. For instance, getting a list of input files, you'd like to know what is the start-in directory (if you allow that as an option too).
+- You can pass multiple option names: as many as you wish. The user-defined handler called in a loop for every option with its values detected in the arguments. It will pass the last name of that option (most likely, it will be the longest and the most descriptive one). Any option name gets normalized before the validation: all spaces and dashes removed, the rest converted to lowercase.
+- At the end of the name list for a given option add a single colon `:` if you expect a value. And in the case of one or more values, double that.
+- The last, but not the least, is the value type: `b` - binary int, `f` - float, `h` - hexadecimal int, `i` - decimal int, `o` - octal int. Default is string.
 
-The function does not allow bundling for short (single-character) option names, but this generally encourages the use of long option names.
+The function allows a 'weird' and even an 'incorrect' way of passing multiple option values. However, this simplifies the case and makes obsolete the need to have plain arguments (the ones without an option). You can still have plain arguments, but you should place those in front of the first option.
+
+The function does not allow bundling for short (single-character) option names, but this generally encourages the use of long option names for better clarity.
 
 The function also does not support negation by the use of plus `+` rather than dash `-`.
-
-## Special features
-
-You are guaranteed the arguments will be processed in the order of appearance in the option definitions (i.e. the outer loop is through the option definitions, and the inner one is through the actual arguments).
-
-It comes in handy if you allow passing an option for the logging mode (like _quiet_ or _verbose_), as it might impact even the process of parsing options itself. So you simply define those before the others.
-
-Or you'd like to ensure that the start-in directory will be processed before the filenames/subpaths.
 
 ## Usage
 

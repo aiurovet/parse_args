@@ -46,7 +46,7 @@ class Options {
   /// Sample application's command-line parser
 
   void parse(List<String> args) {
-    parseArgs('+|q,quiet|v,verbose|?,h,help|c,appconfig:|d,dir:|f,force|i,inp,input::|o,out,output::|p,compression:i',
+    parseArgs('+|q,quiet|v,verbose|?,h,help|c,app-config:|d,dir:|f,force|i,inp,inp-files::|o,out,out-files::|p,compression:i',
               args, (isFirstRun, optName, values) {
       if (isFirstRun) {
         switch (optName) {
@@ -91,11 +91,11 @@ class Options {
           case 'force':
             printInfo('...isForced: $_isForced');
             break;
-          case 'input':
+          case 'inpfiles':
             addPaths(_inputFiles, values);
             printInfo('...inp file(s): $_inputFiles');
             return;
-          case 'output':
+          case 'outfiles':
             addPaths(_outputFiles, values);
             printInfo('...out file(s): $_outputFiles');
             return;
