@@ -97,7 +97,7 @@ void main() {
 }
 
 /// Parsed options handler: just prints whatever is passed
-/// 
+///
 void onParse(bool isFirstRun, String name, List values) {
   opts[name] = values;
   print('"$name": $values');

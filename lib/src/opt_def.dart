@@ -29,12 +29,12 @@ class OptDef {
   static const valueMarker = ':';
 
   /// A constant option name validator
-  /// 
+  ///
   static final RegExp nameChecker =
       RegExp(r'^([a-z]+[a-z0-9]*|[0-9]+)|$', caseSensitive: false);
 
   /// A constant OptValueType => radix mapping
-  /// 
+  ///
   static const radixMap = {
     OptValueType.bit: 2,
     OptValueType.num: 0,
@@ -44,7 +44,7 @@ class OptDef {
   };
 
   /// A constant flag => OptValueType mapping
-  /// 
+  ///
   static const valueTypeMap = {
     'b': OptValueType.bit,
     'f': OptValueType.num,
@@ -54,29 +54,29 @@ class OptDef {
   };
 
   /// Indicates an option without a value (the flag)
-  /// 
+  ///
   late final bool isFlag;
 
   /// A list of option name lists
-  /// 
+  ///
   final List<String> names = [];
 
   /// A radix for integer values
-  /// 
+  ///
   late final int? radix;
 
   /// An enum for expected number of values
-  /// 
+  ///
   late final OptValueCountType valueCountType;
 
   /// An enum for expected type of values
-  /// 
+  ///
   late final OptValueType valueType;
 
   /// Construct an option definition by parsing a string which comprises
   /// regex pattern followed by 0 (flag), 1 (single) or 2 (multiple)
   /// colons, then, possibly, by a value type character
-  /// 
+  ///
   OptDef(String optDefStr) {
     var optDefStrNorm = normalize(optDefStr);
     var optDefStrNormLen = optDefStrNorm.length;
@@ -146,7 +146,7 @@ class OptDef {
   }
 
   /// Find an option definition by the option name
-  /// 
+  ///
   static OptDef? find(List<OptDef> optDefs, String name,
       {bool canThrow = false}) {
     if (optDefs.isEmpty) {
@@ -168,7 +168,7 @@ class OptDef {
 
   /// Create a list of option definitions by splitting a space-separated
   /// option definitions string.
-  /// 
+  ///
   static List<OptDef> listFromString(String? optDefStr) {
     var result = <OptDef>[];
 
@@ -192,12 +192,12 @@ class OptDef {
   }
 
   /// Make a normalized option: no space, no dash, lowercase
-  /// 
+  ///
   static String normalize(String name) =>
       name.replaceAll(' ', '').replaceAll(optPrefix, '').toLowerCase();
 
   /// Convert a string value [strValue] of an option [name] to the strongly typed one
-  /// 
+  ///
   Object toTypedValue(String name, String strValue) {
     if (radix == null) {
       return strValue;
@@ -219,7 +219,7 @@ class OptDef {
   }
 
   /// Validate the [actualCount] of values against the expected one for the option [name]
-  /// 
+  ///
   void validateValueCount(String name, int actualCount) {
     switch (valueCountType) {
       case OptValueCountType.none:

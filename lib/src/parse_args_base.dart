@@ -6,7 +6,7 @@ import 'package:parse_args/src/opt_def.dart';
 /// A type for the user-defined handler which gets called on every option
 /// with the list of values (non-optional arguments between this option
 /// and the next one).
-/// 
+///
 typedef ParseArgsHandler = void Function(
     bool isFirstRun, String name, List values);
 
@@ -20,7 +20,7 @@ typedef ParseArgsHandler = void Function(
 /// the arguments (this allows to 'look-ahead' in case of dependent options)
 ///
 /// '+|?,h,help|f,force|i,inpfiles::|min:i|max:i|r,rate:f'
-/// 
+///
 void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
   var optDefs = OptDef.listFromString(optDefStr);
   var isMultiRun = (OptDef.find(optDefs, OptDef.optMultiRun) != null);

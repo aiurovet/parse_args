@@ -5,30 +5,30 @@
 ///
 class OptException implements Exception {
   /// Free text explaining what is this exception about
-  /// 
+  ///
   String get description => '';
 
   /// Option name and values stringized
-  /// 
+  ///
   String details = '';
 
   /// Option name
-  /// 
+  ///
   final String name;
 
   /// Option values
-  /// 
+  ///
   final List? values;
 
   /// Exception's constructor: mandatory option [name] and the list of values if relevant
-  /// 
+  ///
   OptException(this.name, [this.values]) {
     var hasValue = (values?.isNotEmpty ?? false);
     details = '"$name"${hasValue ? ': ${values.toString()}' : ''}';
   }
 
   /// An override of the default toString() showing explanation and data
-  /// 
+  ///
   @override
   String toString() {
     return '$description $details';
@@ -39,12 +39,12 @@ class OptException implements Exception {
 ///
 class OptNameException extends OptException {
   /// An implementation of the explanation
-  /// 
+  ///
   @override
   String get description => 'Undefined option';
 
   /// Specific constructor
-  /// 
+  ///
   OptNameException(optName) : super(optName);
 }
 
@@ -52,12 +52,12 @@ class OptNameException extends OptException {
 ///
 class OptValueMissingException extends OptException {
   /// An implementation of the explanation
-  /// 
+  ///
   @override
   String get description => 'Missing value for the option';
 
   /// Specific constructor
-  /// 
+  ///
   OptValueMissingException(optName) : super(optName);
 }
 
@@ -65,12 +65,12 @@ class OptValueMissingException extends OptException {
 ///
 class OptValueTooManyException extends OptException {
   /// An implementation of the explanation
-  /// 
+  ///
   @override
   String get description => 'Too many values for the option';
 
   /// Specific constructor
-  /// 
+  ///
   OptValueTooManyException(optName, [values]) : super(optName, values);
 }
 
@@ -78,12 +78,12 @@ class OptValueTooManyException extends OptException {
 ///
 class OptValueTypeException extends OptException {
   /// An implementation of the explanation
-  /// 
+  ///
   @override
   String get description => 'Bad value type for the option';
 
   /// Specific constructor
-  /// 
+  ///
   OptValueTypeException(optName, [values]) : super(optName, values);
 }
 
@@ -91,11 +91,11 @@ class OptValueTypeException extends OptException {
 ///
 class OptValueUnexpectedException extends OptException {
   /// An implementation of the explanation
-  /// 
+  ///
   @override
   String get description => 'Value is not expected for the option';
 
   /// Specific constructor
-  /// 
+  ///
   OptValueUnexpectedException(optName, [values]) : super(optName, values);
 }
