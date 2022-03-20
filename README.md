@@ -30,37 +30,53 @@ import 'package:path/path.dart' as p;
 import 'package:parse_args/parse_args.dart';
 
 /// Application options
-
+///
 class Options {
   static const appName = 'sampleapp';
   static const appVersion = '2.0.1';
 
-  var _appConfigPath = '';
+  /// Application configuration path
+  ///
   get appConfigPath => _appConfigPath;
+  var _appConfigPath = '';
 
-  var _compression = 6;
+  /// Compression level
+  ///
   get compression => _compression;
+  var _compression = 6;
 
-  var _isForced = false;
+  /// Force otherwise incremental processing
+  ///
   get isForced => _isForced;
+  var _isForced = false;
 
-  var _isQuiet = false;
+  /// Quiet mode (no print)
+  ///
   get isQuiet => _isQuiet;
+  var _isQuiet = false;
 
+  /// Verbose mode (print extra detailed info)
+  ///
   var _isVerbose = false;
   get isVerbose => _isVerbose;
 
-  var _startDirName = '';
+  /// Directory to start in (switch to at the beginning)
+  ///
   get startDirName => _startDirName;
+  var _startDirName = '';
 
-  final _inputFiles = <String>[];
+  /// The list of input files
+  ///
   get inputFiles => _inputFiles;
+  final _inputFiles = <String>[];
 
-  final _outputFiles = <String>[];
+  /// The list of output files
+  ///
   get outputFiles => _outputFiles;
+  final _outputFiles = <String>[];
 
   /// General-purpose method to add file paths to destinaltion list
-
+  ///
   void addPaths(List<String> to, List from) {
     for (var x in from) {
       to.add(p.isAbsolute(x) ? x : p.join(_startDirName, x));
@@ -68,7 +84,7 @@ class Options {
   }
 
   /// Sample application's command-line parser
-
+  ///
   void parse(List<String> args) {
     parseArgs(
         '+|q,quiet|v,verbose|?,h,help|c,app-config:|d,dir:|f,force|i,inp,inp-files::|o,out,out-files::|p,compression:i|::',
@@ -100,7 +116,7 @@ class Options {
 
         // No need to assign any option value which does not depend on another one, just
         // printing the info. Essentially, these cases can be omitted for the second run
-
+        //
         switch (optName) {
           case '':
             printInfo('...plain arg count: ${values.length}');
@@ -140,7 +156,7 @@ class Options {
   }
 
   /// A very simple info logger
-
+  ///
   void printInfo(String line) {
     if (!_isQuiet) {
       print(line);
@@ -148,7 +164,7 @@ class Options {
   }
 
   /// A very simple verbose logger
-
+  ///
   void printVerbose(String line) {
     if (!_isQuiet && _isVerbose) {
       print(line);
@@ -156,11 +172,11 @@ class Options {
   }
 
   /// Displaying the help and optionally, an error message
-
+  ///
   Never printUsage([String? error]) {
     stderr.writeln('''
 
-${Options.appName} ${Options.appVersion} (c) 2022 My Name
+${Options.appName} ${Options.appVersion} (c) My Name 2022
 
 Long description of the application functionality
 
@@ -191,14 +207,12 @@ ${(error == null) || error.isEmpty ? '' : '*** ERROR: $error'}
 }
 
 /// Sample application entry point
-
+///
 void main(List<String> args) {
   try {
     var o = Options();
     o.parse(args);
     // the rest of processing
-  } on OptException catch (e) {
-    e.print();
   } on Exception catch (e) {
     stderr.writeln(e.toString());
   } on Error catch (e) {
