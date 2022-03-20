@@ -13,15 +13,14 @@ typedef ParseArgsHandler = void Function(
 /// Loops through all command-line arguments [args], determines options,
 /// collects possible values, validates those against the [format] and
 /// calls a user-defined [handler]. Optional [format] should be defined
-/// as a space-separated list string. Use a single colon for a single
-/// value, two colons for multiple values, _b_ for binary int, _i_ for
-/// decimal int, _o_ for octal int, _x_ for hex int, _f_ for floating point.
+/// as a pipe-separated list string. Use a single colon for a single
+/// value, two colons for multiple values, 'b' for binary int, _f_ for
+/// double-precision float, 'i' for decimal int, 'o' for octal int,
+/// 'x' for hex int:
 ///
-/// Example: r'\\?,h,help f,force i,inpfiles:: m,min:i n,max:i r,rate:f'
+/// '+|?,h,help|f,force|i,inpfiles::|min:i|max:i|r,rate:f'
 
 void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
-  final optStop = '--';
-
   var optDefs = OptDef.listFromString(optDefStr);
   var isMultiRun = (OptDef.find(optDefs, OptDef.optMultiRun) != null);
 
@@ -36,8 +35,9 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
 
     // If found an indicator of the end of options, don't treat any further argument as an option
 
-    if (arg == optStop) {
+    if (arg == OptDef.optStop) {
       isValueOnly = true;
+      ++argNo;
       continue;
     }
 
@@ -59,8 +59,11 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
     for (; argNo < argCount; argNo++) {
       arg = args[argNo];
 
-      if (arg == optStop) {
+      if (arg == OptDef.optStop) {
         isValueOnly = true;
+        if (optDef?.isFlag ?? false) {
+          break;
+        }
         continue;
       }
 
@@ -79,17 +82,17 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
 
     // Find the option definition (throws exception if not found) and store in the arg map
 
-    optDef?.validateMode(normName, values.length);
-    var lastNorm =
-        (optDef == null ? normName : optDef.names[optDef.names.length - 1]);
-    argMap[lastNorm] = values;
+    optDef?.validateValueCount(normName, values.length);
+    var names = optDef?.names;
+    var nameCount = names?.length ?? 0;
+    argMap[names == null ? normName : names[nameCount - 1]] = values;
   }
 
   // Call the user-defined handler for the actual processing in the order of appearance of definitions
 
-  for (var step = 1, lastStep = (isMultiRun ? 2 : 1);
-      step <= lastStep;
-      step++) {
+  var lastStep = (isMultiRun ? 2 : 1);
+
+  for (var step = 1; step <= lastStep; step++) {
     argMap.forEach((name, values) {
       handler((step == 1), name, values);
     });

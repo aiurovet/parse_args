@@ -3,7 +3,7 @@
 
 /// Enumeration for the number of the option values
 
-enum OptValueMode {
+enum OptValueCountType {
   none, // no value
   single, // one value
   multiple, // one or more values

@@ -20,7 +20,7 @@ class OptException implements Exception {
 
   @override
   String toString() {
-    return '$description - $details';
+    return '$description $details';
   }
 
   void print() => stderr.writeln(toString());
@@ -31,7 +31,7 @@ class OptException implements Exception {
 ///
 class OptNameException extends OptException {
   @override
-  String get description => 'Invalid option';
+  String get description => 'Undefined option';
 
   OptNameException(optName) : super(optName);
 }
@@ -41,7 +41,7 @@ class OptNameException extends OptException {
 ///
 class OptValueMissingException extends OptException {
   @override
-  String get description => 'Missing value';
+  String get description => 'Missing value for the option';
 
   OptValueMissingException(optName) : super(optName);
 }
@@ -51,7 +51,7 @@ class OptValueMissingException extends OptException {
 ///
 class OptValueTooManyException extends OptException {
   @override
-  String get description => 'Too many values';
+  String get description => 'Too many values for the option';
 
   OptValueTooManyException(optName, [values]) : super(optName, values);
 }
@@ -61,7 +61,7 @@ class OptValueTooManyException extends OptException {
 ///
 class OptValueTypeException extends OptException {
   @override
-  String get description => 'Bad value type';
+  String get description => 'Bad value type for the option';
 
   OptValueTypeException(optName, [values]) : super(optName, values);
 }
@@ -71,7 +71,7 @@ class OptValueTypeException extends OptException {
 ///
 class OptValueUnexpectedException extends OptException {
   @override
-  String get description => 'Value is not expected ';
+  String get description => 'Value is not expected for the option';
 
   OptValueUnexpectedException(optName, [values]) : super(optName, values);
 }

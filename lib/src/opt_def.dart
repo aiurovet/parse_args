@@ -2,7 +2,7 @@
 // All rights reserved under MIT license (see LICENSE file)
 
 import 'package:parse_args/src/opt_exception.dart';
-import 'package:parse_args/src/opt_value_mode.dart';
+import 'package:parse_args/src/opt_value_count_type.dart';
 import 'package:parse_args/src/opt_value_type.dart';
 
 /// A class which holds a single option definition
@@ -16,6 +16,7 @@ class OptDef {
   static const nameSeparator = ',';
   static const optMultiRun = '+';
   static const optPrefix = '-';
+  static const optStop = '--';
   static const valueMarker = ':';
 
   /// Constants: option name validator
@@ -61,7 +62,7 @@ class OptDef {
 
   /// An enum for expected number of values
 
-  late final OptValueMode valueMode;
+  late final OptValueCountType valueCountType;
 
   /// An enum for expected type of values
 
@@ -81,16 +82,16 @@ class OptDef {
 
     isFlag = (valuePos < 0);
 
-    // Determine value mode and break the option definition string into
-    // the list of names, value mode and extract value type as substring
+    // Determine value count type and break the option definition string into
+    // the list of names, value count type and extract value type as substring
 
     if (isFlag) {
-      valueMode = OptValueMode.none;
+      valueCountType = OptValueCountType.none;
     } else {
       if ((valuePos > 0) && (optDefStrNorm[valuePos - 1] == valueMarker)) {
-        valueMode = OptValueMode.multiple;
+        valueCountType = OptValueCountType.multiple;
       } else {
-        valueMode = OptValueMode.single;
+        valueCountType = OptValueCountType.single;
       }
 
       var typePos = valuePos + 1;
@@ -99,8 +100,11 @@ class OptDef {
         valueTypeStr = optDefStrNorm[typePos];
       }
 
-      optDefStrNorm = optDefStrNorm.substring(
-          0, (valueMode == OptValueMode.multiple ? valuePos - 1 : valuePos));
+      if (valueCountType == OptValueCountType.multiple) {
+        --valuePos;
+      }
+
+      optDefStrNorm = optDefStrNorm.substring(0, valuePos);
     }
 
     // Break the list of names, normalize and validate those, then add to the names list
@@ -215,14 +219,14 @@ class OptDef {
 
   /// Validate the [actualCount] of values against the expected one for the option [name]
 
-  void validateMode(String name, int actualCount) {
-    switch (valueMode) {
-      case OptValueMode.none:
+  void validateValueCount(String name, int actualCount) {
+    switch (valueCountType) {
+      case OptValueCountType.none:
         if (actualCount != 0) {
-          throw OptValueMissingException(name);
+          throw OptValueUnexpectedException(name);
         }
         break;
-      case OptValueMode.single:
+      case OptValueCountType.single:
         if (actualCount < 1) {
           throw OptValueMissingException(name);
         }
@@ -230,7 +234,7 @@ class OptDef {
           throw OptValueTooManyException(name);
         }
         break;
-      case OptValueMode.multiple:
+      case OptValueCountType.multiple:
         if (actualCount < 1) {
           throw OptValueMissingException(name);
         }

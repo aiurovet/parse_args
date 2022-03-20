@@ -12,7 +12,7 @@ enum OptValueType {
   bit, // binary int (radix = 2)
   dec, // decimal int (radix = 10)
   hex, // hexadecimal int (radix= 16)
-  num, // floating point
+  num, // double precision float
   oct, // octal in (radix = 10)
   str // string
 }

@@ -11,6 +11,8 @@
       "type": "dart",
       "cwd": "example",
       "args": [
+        "plain",
+        "argument",
         "-appconfig", "appsettings.json",
         "-o", "out.txt",
         "-i", "inp1.txt", "inp2.txt",

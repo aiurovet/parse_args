@@ -1,3 +1,9 @@
+## 0.2.1
+
+- Fixed minor bugs.
+- Made various parts of documentation consistent.
+- Renamed OptValueMode to OptValueCountType.
+
 ## 0.2.0
 
 - Added ability to define options to parse as well as to automate options/values validations.

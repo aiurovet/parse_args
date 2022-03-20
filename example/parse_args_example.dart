@@ -47,7 +47,7 @@ class Options {
 
   void parse(List<String> args) {
     parseArgs(
-        '+|q,quiet|v,verbose|?,h,help|c,app-config:|d,dir:|f,force|i,inp,inp-files::|o,out,out-files::|p,compression:i',
+        '+|q,quiet|v,verbose|?,h,help|c,app-config:|d,dir:|f,force|i,inp,inp-files::|o,out,out-files::|p,compression:i|::',
         args, (isFirstRun, optName, values) {
       if (isFirstRun) {
         switch (optName) {
@@ -61,7 +61,7 @@ class Options {
             return;
           case 'force':
             _isForced = true;
-            break;
+            return;
           case 'quiet':
             _isQuiet = true;
             return;
@@ -74,10 +74,13 @@ class Options {
       } else {
         printVerbose('Parsing $optName => $values');
 
-        // No need to assign any option value here if it does not depend on another option value
-        // In this case, just print the info
+        // No need to assign any option value which does not depend on another one, just
+        // printing the info. Essentially, these cases can be omitted for the second run
 
         switch (optName) {
+          case '':
+            printInfo('...plain arg count: ${values.length}');
+            return;
           case 'appconfig':
             _appConfigPath = p.join(_startDirName, values[0]);
             printInfo('...appConfigPath: $_appConfigPath');
@@ -90,7 +93,7 @@ class Options {
             return;
           case 'force':
             printInfo('...isForced: $_isForced');
-            break;
+            return;
           case 'inpfiles':
             addPaths(_inputFiles, values);
             printInfo('...inp file(s): $_inputFiles');
@@ -147,14 +150,14 @@ OPTIONS (case-insensitive and dash-insensitive):
 -c, --app-config FILE              - configuration file path/name
 -d, --dir DIR                      - directory to start in
 -f, --force                        - overwrite existing output file
--i, --in[put]  FILE1, [FILE2, ...] - the input file paths/names
--o, --out[put] FILE1, [FILE2, ...] - the output file paths/names
+-i, --inp[-files] FILE1 [FILE2...] - the input file paths/names
+-o, --out[-files] FILE1 [FILE2...] - the output file paths/names
 -p, --compression INT              - compression level
 -v, --verbose                      - detailed application log
 
 EXAMPLE:
 
-${Options.appName} -AppConfig default.json --dir somedir/Documents -in a*.txt ../Downloads/bb.xml --output ../Uploads/result.txt -- -result_more.txt
+${Options.appName} -AppConfig default.json --dir somedir/Documents -inp a*.txt ../Downloads/bb.xml --out-files ../Uploads/result.txt -- -result_more.txt
 
 ${(error == null) || error.isEmpty ? '' : '*** ERROR: $error'}
 ''');
