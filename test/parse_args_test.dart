@@ -81,6 +81,22 @@ void main() {
       parseArgs('?,h,help|q,quiet|v,verbose|f,force|o,out:|i,inp::',
           ['-f', '-o', 'o1', '-i', 'i1', 'i2', '-q', '-v', '-h'], onParse);
     });
+    test('undefined option exception', () {
+      expect(() => parseArgs('a|b', ['-x'], onParse),
+          throwsA((e) => e is OptNameException));
+    });
+    test('option value missing exception', () {
+      expect(() => parseArgs('a|b:', ['-b'], onParse),
+          throwsA((e) => e is OptValueMissingException));
+    });
+    test('too many option values exception', () {
+      expect(() => parseArgs('a|b:', ['-b', '1', '2'], onParse),
+          throwsA((e) => e is OptValueTooManyException));
+    });
+    test('unexpected option value exception', () {
+      expect(() => parseArgs('a|b', ['-a', '1'], onParse),
+          throwsA((e) => e is OptValueUnexpectedException));
+    });
   });
 }
 
