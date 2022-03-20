@@ -12,7 +12,7 @@ It might either accept any option and treat all its possible values as strings (
 - If the whole string starts with `+|`, it means we need an extra run through the list of arguments. For instance, getting a list of input files, you'd like to know what is the start-in directory (if you allow that as an option too).
 - You can pass multiple option names: as many as you wish. The user-defined handler called in a loop for every option with its values detected in the arguments. It will pass the last name of that option (most likely, it will be the longest and the most descriptive one). Any option name gets normalized before the validation: all spaces and dashes removed, the rest converted to lowercase.
 - At the end of the name list for a given option add a single colon `:` if you expect a value. And in the case of one or more values, double that.
-- The last, but not the least, is the value type: `b` - binary int, `f` - float, `h` - hexadecimal int, `i` - decimal int, `o` - octal int. Default is string.
+- The last, but not the least, is the value type: `b` - binary int, `f` - double-precision float, `h` - hexadecimal int, `i` - decimal int, `o` - octal int. Default is string.
 
 The function allows a 'weird' and even an 'incorrect' way of passing multiple option values. However, this simplifies the case and makes obsolete the need to have plain arguments (the ones without an option). You can still have plain arguments, but you should place those in front of the first option.
 
