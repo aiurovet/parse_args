@@ -4,16 +4,12 @@
 import 'package:parse_args/parse_args.dart';
 import 'package:test/test.dart';
 
-///
 /// A list of options to write result to
 ///
-
 Map<String, List> opts = {};
 
-///
 /// The main entry point for tests
 ///
-
 void main() {
   group('parseArgs -', () {
     test('empty', () {
@@ -101,7 +97,7 @@ void main() {
 }
 
 /// Parsed options handler: just prints whatever is passed
-
+/// 
 void onParse(bool isFirstRun, String name, List values) {
   opts[name] = values;
   print('"$name": $values');

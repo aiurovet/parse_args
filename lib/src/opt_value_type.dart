@@ -1,12 +1,10 @@
 // Copyright (c) 2022, Alexander Iurovetski
 // All rights reserved under MIT license (see LICENSE file)
 
-///
 /// Enumeration for the possible datatypes of expected values,
 /// used to decide on how to parse input values before calling
 /// the user-defined handler
 ///
-
 enum OptValueType {
   nil, // no type (default value)
   bit, // binary int (radix = 2)
