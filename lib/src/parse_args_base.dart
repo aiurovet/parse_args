@@ -6,7 +6,7 @@ import 'package:parse_args/src/opt_def.dart';
 /// A type for the user-defined handler which gets called on every option
 /// with the list of values (non-optional arguments between this option
 /// and the next one).
-
+///
 typedef ParseArgsHandler = void Function(
     bool isFirstRun, String name, List values);
 
@@ -16,10 +16,11 @@ typedef ParseArgsHandler = void Function(
 /// as a pipe-separated list string. Use a single colon for a single
 /// value, two colons for multiple values, 'b' for binary int, _f_ for
 /// double-precision float, 'i' for decimal int, 'o' for octal int,
-/// 'x' for hex int:
+/// 'x' for hex int. Use a leading '+|' to request a double pass through
+/// the arguments (this allows to 'look-ahead' in case of dependent options)
 ///
 /// '+|?,h,help|f,force|i,inpfiles::|min:i|max:i|r,rate:f'
-
+///
 void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
   var optDefs = OptDef.listFromString(optDefStr);
   var isMultiRun = (OptDef.find(optDefs, OptDef.optMultiRun) != null);
@@ -29,12 +30,12 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
   var isValueOnly = false;
 
   // Loop through all arguments
-
+  //
   for (var argNo = 0; argNo < argCount;) {
     var arg = args[argNo];
 
     // If found an indicator of the end of options, don't treat any further argument as an option
-
+    //
     if (arg == OptDef.optStop) {
       isValueOnly = true;
       ++argNo;
@@ -42,7 +43,7 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
     }
 
     // Get the option name if encountered
-
+    //
     var isOption = (!isValueOnly && arg.startsWith(OptDef.optPrefix));
     var name = (isOption ? arg : '');
     var normName = OptDef.normalize(name);
@@ -53,7 +54,7 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
     }
 
     // Populate the list of values for the current option (all arguments beyond that and prior to the next one)
-
+    //
     var values = [];
 
     for (; argNo < argCount; argNo++) {
@@ -81,7 +82,7 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
     }
 
     // Find the option definition (throws exception if not found) and store in the arg map
-
+    //
     optDef?.validateValueCount(normName, values.length);
     var names = optDef?.names;
     var nameCount = names?.length ?? 0;
@@ -89,7 +90,7 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
   }
 
   // Call the user-defined handler for the actual processing in the order of appearance of definitions
-
+  //
   var lastStep = (isMultiRun ? 2 : 1);
 
   for (var step = 1; step <= lastStep; step++) {
