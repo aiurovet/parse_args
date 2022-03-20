@@ -1,3 +1,10 @@
+## 0.2.2
+
+- Fixed minor bugs.
+- Extended comments and made them uniform (same style)
+- Got rid of dart:io dependency in OptException
+- Removed unused property OptDef.level
+
 ## 0.2.1
 
 - Fixed minor bugs.
