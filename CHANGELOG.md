@@ -1,3 +1,8 @@
+## 0.2.3
+
+- Fixed description in pubspec.yaml and README.md.
+- Added documentation foer a few constants
+
 ## 0.2.2
 
 - Fixed minor bugs.

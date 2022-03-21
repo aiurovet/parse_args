@@ -8,8 +8,13 @@ import 'package:parse_args/parse_args.dart';
 /// Application options
 ///
 class Options {
+  /// Application name
+  ///
   static const appName = 'sampleapp';
-  static const appVersion = '2.0.1';
+
+  /// Application version
+  ///
+  static const appVersion = '0.1.2';
 
   /// Application configuration path
   ///

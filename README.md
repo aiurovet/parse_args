@@ -1,4 +1,4 @@
-A getopts-like Dart package to parse command-line options simple way and in a portable style (bash/find/java/PowerShell).
+A getopts-like Dart package to parse command-line options simple way and in a portable style (bash, find, java, PowerShell).
 
 ## Features
 
@@ -33,7 +33,7 @@ import 'package:parse_args/parse_args.dart';
 ///
 class Options {
   static const appName = 'sampleapp';
-  static const appVersion = '2.0.1';
+  static const appVersion = '0.1.2';
 
   /// Application configuration path
   ///
