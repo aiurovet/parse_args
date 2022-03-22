@@ -4,13 +4,13 @@ A getopts-like Dart package to parse command-line options simple way and in a po
 
 Comprises a function `parseArgs` and several custom exception classes. The function recognises options, i.e. any word prefixed with а dash `-`, then accumulates all possible values (every arg until the next option), validates against the user-defined format and calls a user-defined function handler.
 
-It might either accept any option and treat all its possible values as strings (compatibility with older versions), or validate those using an options definitions string (the first parameter). Let's have a look at an example of such string:
+It might either accept any option and treat all its possible values as strings (compatibility with older versions) or validate those using an options definitions string (the first parameter). Let's have a look at an example of such string:
 
 `+|q,quiet|v,verbose|?,h,help|c,app-config:|d,dir:|f,force|i,inp,inp-files::|o,out,out-files::|p,compression:i`
 
 - Every option definition is separated by the pipe `|` character.
 - If the whole string starts with `+|`, it means we need an extra run through the list of arguments. For instance, getting a list of input files, you'd like to know what is the start-in directory (if you allow that as an option too).
-- You can pass multiple option names: as many as you wish. The user-defined handler called in a loop for every option with its values detected in the arguments. It will pass the last name of that option (most likely, it will be the longest and the most descriptive one). Any option name gets normalized before the validation: all spaces and dashes removed, the rest converted to lowercase.
+- You can pass multiple option names: as many as you wish. The user-defined handler called in a loop for every option with its values detected in the arguments. The handler is guaranteed to be called for every option in the order of their appearance in the definitions string. It will be receiving the last name of each option (most likely, it will be the longest and the most descriptive one). That name will be normalized: all spaces and dashes removed, the rest converted to lowercase.
 - At the end of the name list for a given option add a single colon `:` if you expect a value. And in the case of one or more values, double that.
 - The last, but not the least, is the value type: `b` - binary int, `f` - double-precision float, `h` - hexadecimal int, `i` - decimal int, `o` - octal int. Default is string.
 
@@ -32,7 +32,12 @@ import 'package:parse_args/parse_args.dart';
 /// Application options
 ///
 class Options {
+  /// Application name
+  ///
   static const appName = 'sampleapp';
+
+  /// Application version
+  ///
   static const appVersion = '0.1.2';
 
   /// Application configuration path
@@ -87,7 +92,7 @@ class Options {
   ///
   void parse(List<String> args) {
     parseArgs(
-        '+|q,quiet|v,verbose|?,h,help|c,app-config:|d,dir:|f,force|i,inp,inp-files::|o,out,out-files::|p,compression:i|::',
+        '+|q,quiet|v,verbose|?,h,help|d,dir:|c,app-config:|f,force|i,inp,inp-files::|o,out,out-files::|p,compression:i|::',
         args, (isFirstRun, optName, values) {
       if (isFirstRun) {
         switch (optName) {
@@ -176,7 +181,7 @@ class Options {
   Never printUsage([String? error]) {
     stderr.writeln('''
 
-${Options.appName} ${Options.appVersion} (c) My Name 2022
+${Options.appName} ${Options.appVersion} (c) 2022 My Name
 
 Long description of the application functionality
 
@@ -186,14 +191,14 @@ ${Options.appName} [OPTIONS]
 
 OPTIONS (case-insensitive and dash-insensitive):
 
--?, -h, -help                      - this help screen
--c, --app-config FILE              - configuration file path/name
--d, --dir DIR                      - directory to start in
--f, --force                        - overwrite existing output file
--i, --inp[-files] FILE1 [FILE2...] - the input file paths/names
--o, --out[-files] FILE1 [FILE2...] - the output file paths/names
--p, --compression INT              - compression level
--v, --verbose                      - detailed application log
+-?, -h, -[-]help                     - this help screen
+-c, -[-]app[-]config FILE            - configuration file path/name
+-d, -[-]dir DIR                      - directory to start in
+-f, -[-]force                        - overwrite existing output file
+-i, -[-]inp[-files] FILE1 [FILE2...] - the input file paths/names
+-o, -[-]out[-files] FILE1 [FILE2...] - the output file paths/names
+-p, -[-]compression INT              - compression level
+-v, -[-]verbose                      - detailed application log
 
 EXAMPLE:
 

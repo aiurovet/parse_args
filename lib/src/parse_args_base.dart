@@ -27,6 +27,7 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
 
   var argCount = args.length;
   var argMap = <String, List>{};
+  var ordMap = <int, String>{};
   var isValueOnly = false;
 
   // Loop through all arguments
@@ -81,22 +82,39 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
       }
     }
 
-    // Find the option definition (throws exception if not found) and store in the arg map
+    // Ensure the actual number of values matches the expected one
     //
     optDef?.validateValueCount(normName, values.length);
+
+    // Choose the best suited normalized name
+    //
     var names = optDef?.names;
-    var nameCount = names?.length ?? 0;
-    argMap[names == null ? normName : names[nameCount - 1]] = values;
+
+    if (names != null) {
+      normName = names[names.length - 1]; // must not be empty
+    }
+
+    // Set the actual option name and values
+    //
+    argMap[normName] = values;
+
+    // Set the order number (the position in the definitions string)
+    //
+    var ordNo = (optDef == null ? -1 : optDefs.indexOf(optDef));
+    ordMap[ordNo] = normName;
   }
 
   // Call the user-defined handler for the actual processing in the order of appearance of definitions
   //
   var lastStep = (isMultiRun ? 2 : 1);
+  var sortedOrdKeys = ordMap.keys.toList()..sort();
+  var emptyList = [];
 
   for (var step = 1; step <= lastStep; step++) {
-    argMap.forEach((name, values) {
-      handler((step == 1), name, values);
-    });
+    for (var i in sortedOrdKeys) {
+      var name = ordMap[i] ?? '';
+      handler((step == 1), name, argMap[name] ?? emptyList);
+    }
   }
 
   // Finish

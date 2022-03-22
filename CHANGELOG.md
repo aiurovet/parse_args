@@ -1,3 +1,7 @@
+## 0.3.0
+
+- Make calls to the user-defined handler in the order of the options appearing in the definitions list
+
 ## 0.2.3
 
 - Fixed description in pubspec.yaml and README.md.

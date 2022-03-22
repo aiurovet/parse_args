@@ -68,7 +68,7 @@ class Options {
   ///
   void parse(List<String> args) {
     parseArgs(
-        '+|q,quiet|v,verbose|?,h,help|c,app-config:|d,dir:|f,force|i,inp,inp-files::|o,out,out-files::|p,compression:i|::',
+        '+|q,quiet|v,verbose|?,h,help|d,dir:|c,app-config:|f,force|i,inp,inp-files::|o,out,out-files::|p,compression:i|::',
         args, (isFirstRun, optName, values) {
       if (isFirstRun) {
         switch (optName) {
@@ -157,7 +157,7 @@ class Options {
   Never printUsage([String? error]) {
     stderr.writeln('''
 
-${Options.appName} ${Options.appVersion} (c) My Name 2022
+${Options.appName} ${Options.appVersion} (c) 2022 My Name
 
 Long description of the application functionality
 
@@ -167,14 +167,14 @@ ${Options.appName} [OPTIONS]
 
 OPTIONS (case-insensitive and dash-insensitive):
 
--?, -h, -help                      - this help screen
--c, --app-config FILE              - configuration file path/name
--d, --dir DIR                      - directory to start in
--f, --force                        - overwrite existing output file
--i, --inp[-files] FILE1 [FILE2...] - the input file paths/names
--o, --out[-files] FILE1 [FILE2...] - the output file paths/names
--p, --compression INT              - compression level
--v, --verbose                      - detailed application log
+-?, -h, -[-]help                     - this help screen
+-c, -[-]app[-]config FILE            - configuration file path/name
+-d, -[-]dir DIR                      - directory to start in
+-f, -[-]force                        - overwrite existing output file
+-i, -[-]inp[-files] FILE1 [FILE2...] - the input file paths/names
+-o, -[-]out[-files] FILE1 [FILE2...] - the output file paths/names
+-p, -[-]compression INT              - compression level
+-v, -[-]verbose                      - detailed application log
 
 EXAMPLE:
 

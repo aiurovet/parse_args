@@ -25,7 +25,13 @@ class OptDef {
   /// A constant prefix-indicator of any option name
   ///
   static const optPrefix = '-';
+
+  /// An option meaning 'no more option'
+  ///
   static const optStop = '--';
+
+  /// A character meaning that an option requires a value
+  ///
   static const valueMarker = ':';
 
   /// A constant option name validator
