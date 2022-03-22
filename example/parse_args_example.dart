@@ -67,9 +67,10 @@ class Options {
   /// Sample application's command-line parser
   ///
   void parse(List<String> args) {
-    parseArgs(
-        '+|q,quiet|v,verbose|?,h,help|d,dir:|c,app-config:|f,force|i,inp,inp-files::|o,out,out-files::|p,compression:i|::',
-        args, (isFirstRun, optName, values) {
+    parseArgs('''
++|q,quiet|v,verbose|?,h,help|d,dir:|c,app-config:|f,force
+ |i,inp,inp-files::|o,out,out-files::|p,compression:i|::
+''', args, (isFirstRun, optName, values) {
       if (isFirstRun) {
         switch (optName) {
           case 'compression':

@@ -4,7 +4,7 @@ A getopts-like Dart package to parse command-line options simple way and in a po
 
 Comprises a function `parseArgs` and several custom exception classes. The function recognises options, i.e. any word prefixed with а dash `-`, then accumulates all possible values (every arg until the next option), validates against the user-defined format and calls a user-defined function handler.
 
-It might either accept any option and treat all its possible values as strings (compatibility with older versions) or validate those using an options definitions string (the first parameter). Let's have a look at an example of such string:
+It might either accept any option and treat all its possible values as strings (compatibility with older versions) or validate those using an options definitions string (the first parameter). This string can be multi-line, as all blank characters will get removed. Let's have a look at an example of such string:
 
 `+|q,quiet|v,verbose|?,h,help|c,app-config:|d,dir:|f,force|i,inp,inp-files::|o,out,out-files::|p,compression:i`
 
@@ -91,8 +91,10 @@ class Options {
   /// Sample application's command-line parser
   ///
   void parse(List<String> args) {
-    parseArgs(
-        '+|q,quiet|v,verbose|?,h,help|d,dir:|c,app-config:|f,force|i,inp,inp-files::|o,out,out-files::|p,compression:i|::',
+    parseArgs('''
++|q,quiet|v,verbose|?,h,help|d,dir:|c,app-config:|f,force
+ |i,inp,inp-files::|o,out,out-files::|p,compression:i|::
+''',
         args, (isFirstRun, optName, values) {
       if (isFirstRun) {
         switch (optName) {
