@@ -1,6 +1,11 @@
+## 0.3.1
+
+- The options definitions string can be multi-line, as all blank characters will get removed.
+- Several constants in OptDef made private as being insignificant outside the class.
+
 ## 0.3.0
 
-- Make calls to the user-defined handler in the order of the options appearing in the definitions list
+- Make calls to the user-defined handler in the order of the options appearing in the definitions list.
 
 ## 0.2.3
 

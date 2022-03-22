@@ -28,36 +28,11 @@ class OptDef {
 
   /// An option meaning 'no more option'
   ///
-  static const optStop = '--';
+  static const optStop = '$optPrefix$optPrefix';
 
   /// A character meaning that an option requires a value
   ///
   static const valueMarker = ':';
-
-  /// A constant option name validator
-  ///
-  static final RegExp nameChecker =
-      RegExp(r'^([a-z]+[a-z0-9]*|[0-9]+)|$', caseSensitive: false);
-
-  /// A constant OptValueType => radix mapping
-  ///
-  static const radixMap = {
-    OptValueType.bit: 2,
-    OptValueType.num: 0,
-    OptValueType.dec: 10,
-    OptValueType.hex: 16,
-    OptValueType.oct: 8,
-  };
-
-  /// A constant flag => OptValueType mapping
-  ///
-  static const valueTypeMap = {
-    'b': OptValueType.bit,
-    'f': OptValueType.num,
-    'i': OptValueType.dec,
-    'x': OptValueType.hex,
-    'o': OptValueType.oct,
-  };
 
   /// Indicates an option without a value (the flag)
   ///
@@ -78,6 +53,36 @@ class OptDef {
   /// An enum for expected type of values
   ///
   late final OptValueType valueType;
+
+  /// Private: an option name validator
+  ///
+  static final RegExp _nameChecker =
+      RegExp(r'^([a-z]+[a-z0-9]*|[0-9]+)|$', caseSensitive: false);
+
+  /// Private: a regex for an option definition name
+  ///
+  static final RegExp _optDefNameCleaner =
+      RegExp('[\\s\\$optPrefix]', caseSensitive: false);
+
+  /// Private: an OptValueType => radix mapping
+  ///
+  static const _radixMap = {
+    OptValueType.bit: 2,
+    OptValueType.num: 0,
+    OptValueType.dec: 10,
+    OptValueType.hex: 16,
+    OptValueType.oct: 8,
+  };
+
+  /// Private: flag => OptValueType mapping
+  ///
+  static const _valueTypeMap = {
+    'b': OptValueType.bit,
+    'f': OptValueType.num,
+    'i': OptValueType.dec,
+    'x': OptValueType.hex,
+    'o': OptValueType.oct,
+  };
 
   /// Construct an option definition by parsing a string which comprises
   /// regex pattern followed by 0 (flag), 1 (single) or 2 (multiple)
@@ -123,7 +128,7 @@ class OptDef {
     optDefStrNorm.split(nameSeparator).forEach((x) {
       var name = normalize(x);
 
-      if (!nameChecker.hasMatch(name)) {
+      if (!_nameChecker.hasMatch(name)) {
         throw OptNameException(name);
       }
 
@@ -140,13 +145,13 @@ class OptDef {
         valueType = OptValueType.str;
         radix = null;
       } else {
-        valueType = valueTypeMap[valueTypeStr] ?? OptValueType.nil;
+        valueType = _valueTypeMap[valueTypeStr] ?? OptValueType.nil;
 
         if (valueType == OptValueType.nil) {
           throw OptValueTypeException(optDefStrNorm);
         }
 
-        radix = radixMap[valueType];
+        radix = _radixMap[valueType];
       }
     }
   }
@@ -182,7 +187,7 @@ class OptDef {
       return result;
     }
 
-    var list = optDefStr.trim().split(defSeparator);
+    var list = optDefStr.split(defSeparator);
 
     if (list.isEmpty) {
       return result;
@@ -197,10 +202,10 @@ class OptDef {
     return result;
   }
 
-  /// Make a normalized option: no space, no dash, lowercase
+  /// Make a normalized option from [name]: no space, no dash, lowercase
   ///
   static String normalize(String name) =>
-      name.replaceAll(' ', '').replaceAll(optPrefix, '').toLowerCase();
+      name.replaceAll(_optDefNameCleaner, '').toLowerCase();
 
   /// Convert a string value [strValue] of an option [name] to the strongly typed one
   ///
