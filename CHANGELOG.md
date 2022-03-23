@@ -1,3 +1,7 @@
+## 0.4.1
+
+- A test for the bad value separator usage
+
 ## 0.4.0
 
 - The ability to pass value separator and to split a single argument coming after the respective option.

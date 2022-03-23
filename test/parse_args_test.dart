@@ -91,9 +91,11 @@ void main() {
       expect(opts['a']?.length, 3);
       expect(opts['b'] != null, true);
     });
-    test('value separator', () {
-      expect(() => parseArgs('a|b', ['-a', '1'], onParse, valueSeparator: ','),
-          throwsA((e) => e is OptValueUnexpectedException));
+    test('value separator - bad', () {
+      expect(
+          () => parseArgs('a::i|b', ['-a', '1,2,3', '4', '-b'], onParse,
+              valueSeparator: ','),
+          throwsA((e) => e is OptNameException));
     });
     test('undefined option exception', () {
       expect(() => parseArgs('a|b', ['-x'], onParse),
