@@ -21,7 +21,8 @@ typedef ParseArgsHandler = void Function(
 ///
 /// '+|?,h,help|f,force|i,inpfiles::|min:i|max:i|r,rate:f'
 ///
-void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
+void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
+    {String valueSeparator = ''}) {
   var optDefs = OptDef.listFromString(optDefStr);
   var isMultiRun = (OptDef.find(optDefs, OptDef.optMultiRun) != null);
 
@@ -49,12 +50,15 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
     var name = (isOption ? arg : '');
     var normName = OptDef.normalize(name);
     var optDef = OptDef.find(optDefs, normName, canThrow: true);
+    var lastName = optDef?.lastName ?? '';
 
     if (isOption) {
       ++argNo;
     }
 
-    // Populate the list of values for the current option (all arguments beyond that and prior to the next one)
+    // Populate the list of values for the current option
+    // (either the next argument split by the non-empty valueSeparator,
+    // or all arguments beyond that and prior to the next option)
     //
     var values = [];
 
@@ -75,10 +79,16 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
         break;
       }
 
-      if (optDef == null) {
-        values.add(arg);
+      // Add the actual values
+
+      if (valueSeparator.isEmpty) {
+        values.add(optDef?.toTypedValue(lastName, arg) ?? arg);
       } else {
-        values.add(optDef.toTypedValue(normName, arg));
+        for (var v in arg.split(valueSeparator)) {
+          values.add(optDef?.toTypedValue(lastName, v) ?? v);
+        }
+        ++argNo;
+        break;
       }
     }
 
@@ -86,17 +96,9 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler) {
     //
     optDef?.validateValueCount(normName, values.length);
 
-    // Choose the best suited normalized name
-    //
-    var names = optDef?.names;
-
-    if (names != null) {
-      normName = names[names.length - 1]; // must not be empty
-    }
-
     // Set the actual option name and values
     //
-    argMap[normName] = values;
+    argMap[lastName] = values;
 
     // Set the order number (the position in the definitions string)
     //

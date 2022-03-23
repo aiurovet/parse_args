@@ -1,3 +1,7 @@
+## 0.4.0
+
+- The ability to pass value separator and to split a single argument coming after the respective option.
+
 ## 0.3.1
 
 - The options definitions string can be multi-line, as all blank characters will get removed.

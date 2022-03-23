@@ -77,6 +77,24 @@ void main() {
       parseArgs('?,h,help|q,quiet|v,verbose|f,force|o,out:|i,inp::',
           ['-f', '-o', 'o1', '-i', 'i1', 'i2', '-q', '-v', '-h'], onParse);
     });
+    test('value separator', () {
+      opts.clear();
+      parseArgs(
+          'a::i|b',
+          [
+            '-a',
+            '1,2,3',
+            '-b',
+          ],
+          onParse,
+          valueSeparator: ',');
+      expect(opts['a']?.length, 3);
+      expect(opts['b'] != null, true);
+    });
+    test('value separator', () {
+      expect(() => parseArgs('a|b', ['-a', '1'], onParse, valueSeparator: ','),
+          throwsA((e) => e is OptValueUnexpectedException));
+    });
     test('undefined option exception', () {
       expect(() => parseArgs('a|b', ['-x'], onParse),
           throwsA((e) => e is OptNameException));
