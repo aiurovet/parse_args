@@ -42,6 +42,10 @@ class OptDef {
   ///
   final List<String> names = [];
 
+  /// Return the last name
+  ///
+  get lastName => (names.isEmpty ? '' : names[names.length - 1]);
+
   /// A radix for integer values
   ///
   late final int? radix;
