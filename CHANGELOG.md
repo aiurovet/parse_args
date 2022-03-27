@@ -1,6 +1,10 @@
+## 0.4.2
+
+- Big fix: not the last option name was passed to the handler.
+
 ## 0.4.1
 
-- A test for the bad value separator usage
+- A test for the bad value separator usage.
 
 ## 0.4.0
 
