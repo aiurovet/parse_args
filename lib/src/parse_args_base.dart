@@ -103,7 +103,7 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
     // Set the order number (the position in the definitions string)
     //
     var ordNo = (optDef == null ? -1 : optDefs.indexOf(optDef));
-    ordMap[ordNo] = normName;
+    ordMap[ordNo] = lastName;
   }
 
   // Call the user-defined handler for the actual processing in the order of appearance of definitions

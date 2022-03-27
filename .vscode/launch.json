@@ -17,7 +17,7 @@
         "-o", "out.txt",
         "-i", "inp1.txt", "inp2.txt",
         "-p", "1",
-        "-dir", "top-dir/sub-dir",
+        "-d", "top-dir/sub-dir",
         "-v",
       ]
     }

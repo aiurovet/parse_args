@@ -38,6 +38,12 @@ void main() {
       expect(opts.length, 1);
       expect(opts.containsKey('appconfig'), true);
     });
+    test('multiple names', () {
+      opts.clear();
+      parseArgs('a|b:|e,exp,expect:|f', ['-e', '1'], onParse);
+      expect(opts.length, 1);
+      expect(opts['expect']?.length, 1);
+    });
     test('multiple values', () {
       opts.clear();
       parseArgs('opt1:|opt2::',
