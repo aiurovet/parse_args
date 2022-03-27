@@ -1,6 +1,6 @@
 ## 0.4.2
 
-- Big fix: not the last option name was passed to the handler.
+- Bug fix: not the last option name was passed to the handler.
 
 ## 0.4.1
 
