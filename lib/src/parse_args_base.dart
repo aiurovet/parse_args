@@ -46,11 +46,22 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
 
     // Get the option name if encountered
     //
-    var isOption = (!isValueOnly && arg.startsWith(OptDef.optPrefix));
+    final isOption = (!isValueOnly && arg.startsWith(OptDef.optPrefix));
     var name = (isOption ? arg : '');
-    var normName = OptDef.normalize(name);
-    var optDef = OptDef.find(optDefs, normName, canThrow: true);
-    var lastName = optDef?.lastName ?? '';
+    var value = '';
+
+    if (isOption) {
+      final breakPos = name.indexOf('=');
+
+      if (breakPos >= 0) {
+        value = unquote(name.substring(breakPos + 1));
+        name = name.substring(0, breakPos);
+      }
+    }
+
+    final normName = OptDef.normalize(name);
+    final optDef = OptDef.find(optDefs, normName, canThrow: true);
+    final lastName = optDef?.lastName ?? '';
 
     if (isOption) {
       ++argNo;
@@ -62,33 +73,43 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
     //
     var values = [];
 
-    for (; argNo < argCount; argNo++) {
-      arg = args[argNo];
+    if (value.isEmpty) {
+      for (; argNo < argCount; argNo++) {
+        arg = args[argNo];
 
-      if (arg == OptDef.optStop) {
-        isValueOnly = true;
-        if (optDef?.isFlag ?? false) {
+        if (arg == OptDef.optStop) {
+          isValueOnly = true;
+          if (optDef?.isFlag ?? false) {
+            break;
+          }
+          continue;
+        }
+
+        if (!isValueOnly &&
+            arg.startsWith(OptDef.optPrefix) &&
+            (arg != OptDef.optPrefix)) {
           break;
         }
-        continue;
+
+        // Add the actual values
+
+        if (valueSeparator.isEmpty) {
+          values.add(optDef?.toTypedValue(lastName, arg) ?? arg);
+        } else {
+          for (var v in arg.split(valueSeparator)) {
+            values.add(optDef?.toTypedValue(lastName, v) ?? v);
+          }
+          ++argNo;
+          break;
+        }
       }
-
-      if (!isValueOnly &&
-          arg.startsWith(OptDef.optPrefix) &&
-          (arg != OptDef.optPrefix)) {
-        break;
-      }
-
-      // Add the actual values
-
+    } else {
       if (valueSeparator.isEmpty) {
         values.add(optDef?.toTypedValue(lastName, arg) ?? arg);
       } else {
-        for (var v in arg.split(valueSeparator)) {
+        for (var v in value.split(valueSeparator)) {
           values.add(optDef?.toTypedValue(lastName, v) ?? v);
         }
-        ++argNo;
-        break;
       }
     }
 
@@ -120,4 +141,25 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
   }
 
   // Finish
+}
+
+/// A function to return a string with surrounding quotes removed from [input]
+///
+String unquote(String input) {
+  final length = input.length;
+
+  if (length <= 1) {
+    return input;
+  }
+
+  final lastPos = (length - 1);
+  final quote = input[0];
+
+  if ((quote == '"') || (quote == "'")) {
+    if (input[lastPos] == quote) {
+      return input.substring(1, lastPos);
+    }
+  }
+
+  return input;
 }

@@ -24,7 +24,7 @@ The function also does not support negation by the use of plus `+` rather than d
 
 The same can be found in the `example` folder of the GitHub repository.
 
-```
+```dart
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:parse_args/parse_args.dart';
@@ -94,8 +94,7 @@ class Options {
     parseArgs('''
 +|q,quiet|v,verbose|?,h,help|d,dir:|c,app-config:|f,force
  |i,inp,inp-files::|o,out,out-files::|p,compression:i|::
-''',
-        args, (isFirstRun, optName, values) {
+''', args, (isFirstRun, optName, values) {
       if (isFirstRun) {
         switch (optName) {
           case 'compression':
