@@ -1,3 +1,8 @@
+## 0.5.0
+
+- New feature: support for -name=value, -name="value", -name='value', -name="value1,value2,...", -name='value1,value2,...'.
+  In this case, the following arguments are not treated as values of this option
+
 ## 0.4.2
 
 - Bug fix: not the last option name was passed to the handler.
