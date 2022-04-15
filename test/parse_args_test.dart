@@ -97,9 +97,23 @@ void main() {
       expect(opts['a']?.length, 3);
       expect(opts['b'] != null, true);
     });
+    test('name/value separator', () {
+      parseArgs('a::i|b:', ['-a="1,2,3"', r'-b="\n"'], onParse,
+          valueSeparator: ',');
+      expect(opts['a']?.length, 3);
+      expect(opts['a']?[2], 3);
+      expect(opts['b']?.length, 1);
+      expect(opts['b']?[0], r'\n');
+    });
     test('value separator - bad', () {
       expect(
           () => parseArgs('a::i|b', ['-a', '1,2,3', '4', '-b'], onParse,
+              valueSeparator: ','),
+          throwsA((e) => e is OptNameException));
+    });
+    test('name/value separator - bad', () {
+      expect(
+          () => parseArgs('a::i|b', ['-a="1,2,3"', '4', '-b'], onParse,
               valueSeparator: ','),
           throwsA((e) => e is OptNameException));
     });
@@ -118,6 +132,23 @@ void main() {
     test('unexpected option value exception', () {
       expect(() => parseArgs('a|b', ['-a', '1'], onParse),
           throwsA((e) => e is OptValueUnexpectedException));
+    });
+  });
+  group('unquote -', () {
+    test('empty', () {
+      expect(unquote(''), '');
+    });
+    test('empty single-quoted', () {
+      expect(unquote("''"), '');
+    });
+    test('empty double-quoted', () {
+      expect(unquote('""'), '');
+    });
+    test('non-empty single-quoted', () {
+      expect(unquote(r"'ab\ncd'"), r'ab\ncd');
+    });
+    test('non-empty double-quoted', () {
+      expect(unquote(r'"ab\ncd"'), r'ab\ncd');
     });
   });
 }
