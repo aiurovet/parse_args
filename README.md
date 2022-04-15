@@ -16,6 +16,8 @@ It might either accept any option and treat all its possible values as strings (
 
 The function allows a 'weird' and even an 'incorrect' way of passing multiple option values. However, this simplifies the case and makes obsolete the need to have plain arguments (the ones without an option). You can override this behaviour by passing the value separator. It will force to split just the next argument after an option instead of accumulating all arguments before the next option. You can pass plain arguments, but you should place those in front of the first option.
 
+The function allows an equal sign: -name=["']value["'] or -name=["']value1,value2,...["']. In this case though the following arguments will not be considered as additional values of that option
+
 The function does not allow bundling for short (single-character) option names, but this generally encourages the use of long option names for better clarity.
 
 The function also does not support negation by the use of plus `+` rather than dash `-`.
