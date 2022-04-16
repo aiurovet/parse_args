@@ -134,23 +134,6 @@ void main() {
           throwsA((e) => e is OptValueUnexpectedException));
     });
   });
-  group('unquote -', () {
-    test('empty', () {
-      expect(unquote(''), '');
-    });
-    test('empty single-quoted', () {
-      expect(unquote("''"), '');
-    });
-    test('empty double-quoted', () {
-      expect(unquote('""'), '');
-    });
-    test('non-empty single-quoted', () {
-      expect(unquote(r"'ab\ncd'"), r'ab\ncd');
-    });
-    test('non-empty double-quoted', () {
-      expect(unquote(r'"ab\ncd"'), r'ab\ncd');
-    });
-  });
 }
 
 /// Parsed options handler: just prints whatever is passed

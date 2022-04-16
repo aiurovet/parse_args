@@ -1,7 +1,11 @@
+## 0.5.1
+
+- The function 'unquote' is moved away from the public access in order to avoid possible clashes with the similar ones in consuming applications.
+
 ## 0.5.0
 
 - New feature: support for -name=value, -name="value", -name='value', -name="value1,value2,...", -name='value1,value2,...'.
-  In this case, the following arguments are not treated as values of this option
+  The next plain argument is not treated as another value of this option in order to avoid the visual confusion.
 
 ## 0.4.2
 

@@ -2,6 +2,7 @@
 // All rights reserved under MIT license (see LICENSE file)
 
 import 'package:parse_args/src/opt_def.dart';
+import 'package:parse_args/src/str_ext.dart';
 
 /// A type for the user-defined handler which gets called on every option
 /// with the list of values (non-optional arguments between this option
@@ -54,7 +55,7 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
       final breakPos = name.indexOf('=');
 
       if (breakPos >= 0) {
-        value = unquote(name.substring(breakPos + 1));
+        value = name.substring(breakPos + 1).unquote();
         name = name.substring(0, breakPos);
       }
     }
@@ -141,25 +142,4 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
   }
 
   // Finish
-}
-
-/// A function to return a string with surrounding quotes removed from [input]
-///
-String unquote(String input) {
-  final length = input.length;
-
-  if (length <= 1) {
-    return input;
-  }
-
-  final lastPos = (length - 1);
-  final quote = input[0];
-
-  if ((quote == '"') || (quote == "'")) {
-    if (input[lastPos] == quote) {
-      return input.substring(1, lastPos);
-    }
-  }
-
-  return input;
 }
