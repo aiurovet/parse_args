@@ -1,3 +1,7 @@
+## 0.5.2
+
+- Changed the project homepage
+
 ## 0.5.1
 
 - The function 'unquote' is moved away from the public access in order to avoid possible clashes with the similar ones in consuming applications.
