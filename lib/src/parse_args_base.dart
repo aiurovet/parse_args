@@ -1,7 +1,7 @@
 // Copyright (c) 2022, Alexander Iurovetski
 // All rights reserved under MIT license (see LICENSE file)
 
-import 'package:parse_args/src/opt_def.dart';
+import 'package:parse_args/parse_args.dart';
 import 'package:parse_args/src/str_ext.dart';
 
 /// A type for the user-defined handler which gets called on every option
@@ -29,8 +29,9 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
 
   var argCount = args.length;
   var argMap = <String, List>{};
-  var ordMap = <int, String>{};
   var isValueOnly = false;
+  var ordMap = <int, String>{};
+  OptDef? optDef;
 
   // Loop through all arguments
   //
@@ -39,7 +40,7 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
 
     // If found an indicator of the end of options, don't treat any further argument as an option
     //
-    if (arg == OptDef.optStop) {
+    if (arg == OptName.stop) {
       isValueOnly = true;
       ++argNo;
       continue;
@@ -47,7 +48,7 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
 
     // Get the option name if encountered
     //
-    final isOption = (!isValueOnly && arg.startsWith(OptDef.optPrefix));
+    final isOption = (!isValueOnly && OptName.isValid(arg));
     var name = (isOption ? arg : '');
     var value = '';
 
@@ -61,10 +62,17 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
     }
 
     final normName = OptDef.normalize(name);
-    final optDef = OptDef.find(optDefs, normName, canThrow: true);
-    final lastName = optDef?.lastName ?? '';
+    final foundOptDef = OptDef.find(optDefs, normName, canThrow: true);
+    final isSubOpt = ((foundOptDef != null) && foundOptDef.isSubOpt);
 
-    if (isOption) {
+    if (isSubOpt) {
+      if (optDef == null) {
+        throw SubOptIsFirstException(normName);
+      }
+      value = '${OptName.prefix}$normName';
+      ++argNo;
+    } else if (isOption) {
+      optDef = foundOptDef;
       ++argNo;
     }
 
@@ -72,13 +80,14 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
     // (either the next argument split by the non-empty valueSeparator,
     // or all arguments beyond that and prior to the next option)
     //
-    var values = [];
+    final lastName = optDef?.lastName ?? '';
+    final values = [];
 
     if (value.isEmpty) {
       for (; argNo < argCount; argNo++) {
         arg = args[argNo];
 
-        if (arg == OptDef.optStop) {
+        if (arg == OptName.stop) {
           isValueOnly = true;
           if (optDef?.isFlag ?? false) {
             break;
@@ -86,9 +95,7 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
           continue;
         }
 
-        if (!isValueOnly &&
-            arg.startsWith(OptDef.optPrefix) &&
-            (arg != OptDef.optPrefix)) {
+        if (!isValueOnly && OptName.isValid(arg)) {
           break;
         }
 
@@ -105,7 +112,9 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
         }
       }
     } else {
-      if (valueSeparator.isEmpty) {
+      if (isSubOpt) {
+        values.add(value);
+      } else if (valueSeparator.isEmpty) {
         values.add(optDef?.toTypedValue(lastName, arg) ?? arg);
       } else {
         for (var v in value.split(valueSeparator)) {
@@ -114,18 +123,30 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
       }
     }
 
-    // Ensure the actual number of values matches the expected one
+    // Ensure the actual number of values matches the expected one,
+    // then set the actual option name and values
     //
-    optDef?.validateValueCount(normName, values.length);
+    if (optDef != null) {
+      optDef.validateValueCount(lastName, values.length);
+    }
 
-    // Set the actual option name and values
+    // Assign the values to the option with the name equal to lastName
+    // (and if it is empty then it means the list of plain arguments)
     //
-    argMap[lastName] = values;
+    final to = argMap[lastName];
+
+    if (to == null) {
+      argMap[lastName] = values;
+    } else {
+      to.addAll(values);
+    }
 
     // Set the order number (the position in the definitions string)
     //
-    var ordNo = (optDef == null ? -1 : optDefs.indexOf(optDef));
-    ordMap[ordNo] = lastName;
+    if (!isSubOpt) {
+      var ordNo = (optDef == null ? -1 : optDefs.indexOf(optDef));
+      ordMap[ordNo] = lastName;
+    }
   }
 
   // Call the user-defined handler for the actual processing in the order of appearance of definitions

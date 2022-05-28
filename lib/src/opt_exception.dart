@@ -99,3 +99,16 @@ class OptValueUnexpectedException extends OptException {
   ///
   OptValueUnexpectedException(optName, [values]) : super(optName, values);
 }
+
+/// When encountered an unrecognised option
+///
+class SubOptIsFirstException extends OptException {
+  /// An implementation of the explanation
+  ///
+  @override
+  String get description => 'Sub-option cannot be the first option';
+
+  /// Specific constructor
+  ///
+  SubOptIsFirstException(optName) : super(optName);
+}

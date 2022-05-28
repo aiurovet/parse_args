@@ -105,17 +105,31 @@ void main() {
       expect(opts['b']?.length, 1);
       expect(opts['b']?[0], r'\n');
     });
-    test('value separator - bad', () {
-      expect(
-          () => parseArgs('a::i|b', ['-a', '1,2,3', '4', '-b'], onParse,
-              valueSeparator: ','),
-          throwsA((e) => e is OptNameException));
+    test('multiple lists of values for the same option', () {
+      parseArgs('a::i|b|c:i', ['-a', '1,2', '-b', '-c', '3', '-a', '4', '5,6'], onParse,
+          valueSeparator: ',');
+      expect(opts['a']?.length, 5);
+      expect(opts['a']?[0], 1);
+      expect(opts['a']?[1], 2);
+      expect(opts['a']?[2], 4);
+      expect(opts['a']?[3], 5);
+      expect(opts['a']?[4], 6);
+      expect(opts['b']?.length, 0);
+      expect(opts['c']?.length, 1);
+      expect(opts['c']?[0], 3);
     });
-    test('name/value separator - bad', () {
-      expect(
-          () => parseArgs('a::i|b', ['-a="1,2,3"', '4', '-b'], onParse,
-              valueSeparator: ','),
-          throwsA((e) => e is OptNameException));
+    test('sub-option is a value', () {
+      parseArgs('a::i|b::|and,or<', ['-a', '1', '-or', '2', '-or', '3', '-b="B,c"'], onParse,
+          valueSeparator: ',');
+      expect(opts['a']?.length, 5);
+      expect(opts['a']?[0], 1);
+      expect(opts['a']?[1], '-or');
+      expect(opts['a']?[2], 2);
+      expect(opts['a']?[3], '-or');
+      expect(opts['a']?[4], 3);
+      expect(opts['b']?.length, 2);
+      expect(opts['b']?[0], r'B');
+      expect(opts['b']?[1], r'c');
     });
     test('undefined option exception', () {
       expect(() => parseArgs('a|b', ['-x'], onParse),
@@ -132,6 +146,10 @@ void main() {
     test('unexpected option value exception', () {
       expect(() => parseArgs('a|b', ['-a', '1'], onParse),
           throwsA((e) => e is OptValueUnexpectedException));
+    });
+    test('sub-option before first option exception', () {
+      expect(() => parseArgs('a|b|and,or<', ['-and', '-a', '1'], onParse),
+          throwsA((e) => e is SubOptIsFirstException));
     });
   });
 }

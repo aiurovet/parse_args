@@ -1,3 +1,8 @@
+## 0.6.0
+
+- Added sub-options (see README.md for more detail)
+- Breaking: added ability to append x3 to the list of values of -o in case of -o="x1,x2" x3 (previously, x3 was added to the list of plain arguments)
+
 ## 0.5.3
 
 - Upgraded compiler version to 2.17

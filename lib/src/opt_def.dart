@@ -1,36 +1,30 @@
 // Copyright (c) 2022, Alexander Iurovetski
 // All rights reserved under MIT license (see LICENSE file)
 
-import 'package:parse_args/src/opt_exception.dart';
-import 'package:parse_args/src/opt_value_count_type.dart';
-import 'package:parse_args/src/opt_value_type.dart';
+import 'package:parse_args/parse_args.dart';
 
 /// A class which holds a single option definition
 /// It will be used to look for every option while going through the list
 /// of application arguments as well as validate its name and possible values
 ///
 class OptDef {
-  /// A constant option definitions separator (to have them all in a single string)
+  /// Constant option definitions separator (to have them all in a single string)
   ///
   static const defSeparator = '|';
 
-  /// A constant separator for different names of a single option
+  /// Constant separator for different names of a single option
   ///
   static const nameSeparator = ',';
 
-  /// A constant option name for the indicator of multiple runs over the list of arguments
+  /// Constant option name for the indicator of multiple runs over the list of arguments
   ///
   static const optMultiRun = '+';
 
-  /// A constant prefix-indicator of any option name
+  /// Preceding list is a list of sub-options: will be added to the list of values with the leading option name prefix
   ///
-  static const optPrefix = '-';
+  static const subOptMarker = '<';
 
-  /// An option meaning 'no more option'
-  ///
-  static const optStop = '$optPrefix$optPrefix';
-
-  /// A character meaning that an option requires a value
+  /// Character meaning that an option requires a value
   ///
   static const valueMarker = ':';
 
@@ -38,7 +32,11 @@ class OptDef {
   ///
   late final bool isFlag;
 
-  /// A list of option name lists
+  /// Indicates a sub-option (treated as a special option value)
+  ///
+  late final bool isSubOpt;
+
+  /// List of option name lists
   ///
   final List<String> names = [];
 
@@ -46,27 +44,27 @@ class OptDef {
   ///
   get lastName => (names.isEmpty ? '' : names[names.length - 1]);
 
-  /// A radix for integer values
+  /// Radix for integer values
   ///
   late final int? radix;
 
-  /// An enum for expected number of values
+  /// Enum for expected number of values
   ///
   late final OptValueCountType valueCountType;
 
-  /// An enum for expected type of values
+  /// Expected type of values
   ///
   late final OptValueType valueType;
 
-  /// Private: an option name validator
+  /// Private: option name validator
   ///
   static final RegExp _nameChecker =
       RegExp(r'^([a-z]+[a-z0-9]*|[0-9]+)|$', caseSensitive: false);
 
-  /// Private: a regex for an option definition name
+  /// Private: regex for an option definition name
   ///
   static final RegExp _optDefNameCleaner =
-      RegExp('[\\s\\$optPrefix]', caseSensitive: false);
+      RegExp('[\\s\\${OptName.prefix}]', caseSensitive: false);
 
   /// Private: an OptValueType => radix mapping
   ///
@@ -98,15 +96,20 @@ class OptDef {
     var valuePos = optDefStrNorm.lastIndexOf(valueMarker);
     var valueTypeStr = '';
 
-    // Set the flag indicator
+    // Set indicators
     //
     isFlag = (valuePos < 0);
+    isSubOpt = optDefStrNorm.endsWith(OptDef.subOptMarker);
 
     // Determine value count type and break the option definition string into
     // the list of names, value count type and extract value type as substring
     //
     if (isFlag) {
       valueCountType = OptValueCountType.none;
+
+      if (isSubOpt) {
+        optDefStrNorm = optDefStrNorm.substring(0, (optDefStrNorm.length - 1));
+      }
     } else {
       if ((valuePos > 0) && (optDefStrNorm[valuePos - 1] == valueMarker)) {
         valueCountType = OptValueCountType.multiple;
@@ -141,7 +144,7 @@ class OptDef {
 
     // Determine value type and radix
     //
-    if (isFlag) {
+    if (isFlag || isSubOpt) {
       valueType = OptValueType.nil;
       radix = null;
     } else {
@@ -164,7 +167,7 @@ class OptDef {
   ///
   static OptDef? find(List<OptDef> optDefs, String name,
       {bool canThrow = false}) {
-    if (optDefs.isEmpty) {
+    if (optDefs.isEmpty || name.isEmpty) {
       return null;
     }
 
@@ -236,6 +239,9 @@ class OptDef {
   /// Validate the [actualCount] of values against the expected one for the option [name]
   ///
   void validateValueCount(String name, int actualCount) {
+    if (isSubOpt) {
+      return;
+    }
     switch (valueCountType) {
       case OptValueCountType.none:
         if (actualCount != 0) {

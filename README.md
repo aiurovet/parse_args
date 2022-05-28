@@ -2,21 +2,28 @@ A getopts-like Dart package to parse command-line options simple way and in a po
 
 ## Features
 
-Comprises a function `parseArgs` and several custom exception classes. The function recognises options, i.e. any word prefixed with а dash `-`, then accumulates all possible values (every arg until the next option), validates against the user-defined format and calls a user-defined function handler.
+Comprises a function `parseArgs` and several custom exception classes. The function recognises options, i.e. any word starting with dashes `-` followed by an English letter. It then accumulates all possible values (every arg until the next option), validates against the user-defined format and executes a caller-defined function.
 
-It might either accept any option and treat all its possible values as strings (compatibility with older versions) or validate those using an options definitions string (the first parameter). This string can be multi-line, as all blank characters will get removed. Let's have a look at an example of such string:
+It might either accept any option and treat all its possible values as strings (compatibility with the older versions) or validate those using an options definitions string (the first parameter). This string can be multi-line, as all blank characters will get removed. Let's have a look at an example of such string:
 
-`+|q,quiet|v,verbose|?,h,help|c,app-config:|d,dir:|f,force|i,inp,inp-files::|o,out,out-files::|p,compression:i`
+`+|q,quiet|v,verbose|?,h,help|c,app-config:|d,dir:|f,force|i,inp,inp-files::|o,out,out-files::|p,compression:i|and,not,or<`
 
 - Every option definition is separated by the pipe `|` character.
 - If the whole string starts with `+|`, it means we need an extra run through the list of arguments. For instance, getting a list of input files, you'd like to know what is the start-in directory (if you allow that as an option too).
 - You can pass multiple option names: as many as you wish. The user-defined handler called in a loop for every option with its values detected in the arguments. The handler is guaranteed to be called for every option in the order of their appearance in the definitions string. It will be receiving the last name of each option (most likely, it will be the longest and the most descriptive one). That name will be normalized: all spaces and dashes removed, the rest converted to lowercase.
 - At the end of the name list for a given option add a single colon `:` if you expect a value. And in the case of one or more values, double that.
-- The last, but not the least, is the value type: `b` - binary int, `f` - double-precision float, `h` - hexadecimal int, `i` - decimal int, `o` - octal int. Default is string.
+- The value indicator list might be followed by the value type: `b` - binary int, `f` - double-precision float, `h` - hexadecimal int, `i` - decimal int, `o` - octal int. The default is string.
+- The last option definition contains the less sign at the end: `and,not,or<`. It indicates _sub-options_. For instance, you need to pass multiple filter strings as values of some option. Some filters might require case-sensitive comparison, and some - case-insensitive, some might require straight match, and some - the opposite match (not found):
+
+`myapp -filter -case "Ab" "Cd" --no-case "xyz" -not "uvw"`
+
+The array of values for the option "filter" will be: ["-case", "Ab", "Cd", "-nocase", "xyz", "-not", "uvw"]. This allows you to traverse through the list elements and turn some flags on or off when a sub-option encountered (a string which starts with a single dash folloowed by an English letter). Certainly, one can argue that it is possible to introduce 4 different options and achieve the same result. But firstly, this is a simple example. And secondly, in the latter case, you'll also have to deal with the sequence of "extras" like: --filter-case-not should be equivalent to --filter-not-case, etc. Things can get really ugly without sub-options.
 
 The function allows a 'weird' and even an 'incorrect' way of passing multiple option values. However, this simplifies the case and makes obsolete the need to have plain arguments (the ones without an option). You can override this behaviour by passing the value separator. It will force to split just the next argument after an option instead of accumulating all arguments before the next option. You can pass plain arguments, but you should place those in front of the first option.
 
-The function allows an equal sign: -name=["']value["'] or -name=["']value1,value2,...["']. In this case though the following arguments will not be considered as additional values of that option
+The function allows specifying values for the same option in multiple places as follows: -a 1 2 -b -c 3 -a 4 5 6 (an option -a will get an array of values [1, 2, 4, 5, 6])
+
+The function allows an equal sign: -name=["']value["'] or -name=["']value1,value2,...["']. And still, the separate plain arguments straight after will be considered as additional values of that option.
 
 The function does not allow bundling for short (single-character) option names, but this generally encourages the use of long option names for better clarity.
 

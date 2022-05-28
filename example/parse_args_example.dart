@@ -70,6 +70,7 @@ class Options {
     parseArgs('''
 +|q,quiet|v,verbose|?,h,help|d,dir:|c,app-config:|f,force
  |i,inp,inp-files::|o,out,out-files::|p,compression:i|::
+ |and,not,or<|
 ''', args, (isFirstRun, optName, values) {
       if (isFirstRun) {
         switch (optName) {
