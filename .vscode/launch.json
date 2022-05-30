@@ -5,6 +5,14 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Help",
+      "program": "parse_args_example.dart",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "example",
+      "args": [ "-?" ]
+    },
+    {
       "name": "Example",
       "program": "parse_args_example.dart",
       "request": "launch",
@@ -14,6 +22,7 @@
         "plain",
         "argument",
         "-appconfig", "appsettings.json",
+        "-filter", "abc", "-and", "-nocase", "de", "-or", "-^", "fghi",
         "-o", "out.txt",
         "-i", "inp1.txt", "inp2.txt",
         "-p", "1",

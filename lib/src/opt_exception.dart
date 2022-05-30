@@ -45,7 +45,7 @@ class OptNameException extends OptException {
 
   /// Specific constructor
   ///
-  OptNameException(optName) : super(optName);
+  OptNameException(super.optName);
 }
 
 /// When encountered an option with no value
@@ -58,7 +58,7 @@ class OptValueMissingException extends OptException {
 
   /// Specific constructor
   ///
-  OptValueMissingException(optName) : super(optName);
+  OptValueMissingException(super.optName);
 }
 
 /// When encountered an option with more than one value when only one expected
@@ -71,7 +71,7 @@ class OptValueTooManyException extends OptException {
 
   /// Specific constructor
   ///
-  OptValueTooManyException(optName, [values]) : super(optName, values);
+  OptValueTooManyException(super.optName, [super.values]);
 }
 
 /// When failed either to recognise the verb or to parse the string value
@@ -84,7 +84,7 @@ class OptValueTypeException extends OptException {
 
   /// Specific constructor
   ///
-  OptValueTypeException(optName, [values]) : super(optName, values);
+  OptValueTypeException(super.optName, [super.values]);
 }
 
 /// When encountered an option with value(s) instead of a flag
@@ -97,18 +97,36 @@ class OptValueUnexpectedException extends OptException {
 
   /// Specific constructor
   ///
-  OptValueUnexpectedException(optName, [values]) : super(optName, values);
+  OptValueUnexpectedException(super.optName, [super.values]);
 }
 
 /// When encountered an unrecognised option
 ///
-class SubOptIsFirstException extends OptException {
+class SubOptMismatchException extends OptException {
+  /// Name of the option containing [name] as a sub-option
+  ///
+  final String parentOptName;
+
   /// An implementation of the explanation
   ///
   @override
-  String get description => 'Sub-option cannot be the first option';
+  String get description =>
+      'Option "$parentOptName" does not have a sub-option';
 
   /// Specific constructor
   ///
-  SubOptIsFirstException(optName) : super(optName);
+  SubOptMismatchException(this.parentOptName, super.optName);
+}
+
+/// When encountered an unrecognised option
+///
+class SubOptOrphanException extends OptException {
+  /// An implementation of the explanation
+  ///
+  @override
+  String get description => 'Sub-option does not belong to any option';
+
+  /// Specific constructor
+  ///
+  SubOptOrphanException(super.optName);
 }

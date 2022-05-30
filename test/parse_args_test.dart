@@ -44,13 +44,33 @@ void main() {
       expect(opts.length, 1);
       expect(opts['expect']?.length, 1);
     });
-    test('multiple values', () {
+    test('opt name: stop', () {
       opts.clear();
       parseArgs('opt1:|opt2::',
           ['-opt1', 'v11', '--opt2', 'v21', '-', 'v22', '--', '-v23'], onParse);
       expect(opts.length, 2);
       expect(opts['opt1']?.length, 1);
+      expect(opts['opt1']?[0], 'v11');
       expect(opts['opt2']?.length, 4);
+      expect(opts['opt2']?[0], 'v21');
+      expect(opts['opt2']?[1], '-');
+      expect(opts['opt2']?[2], 'v22');
+      expect(opts['opt2']?[3], '-v23');
+    });
+    test('opt name: stop and drop', () {
+      opts.clear();
+      parseArgs(
+          'opt1:|opt2::',
+          ['-opt1', 'v11', '--opt2', 'v21', '-', 'v22', '---', '-v23'],
+          onParse);
+      expect(opts.length, 3);
+      expect(opts['opt1']?.length, 1);
+      expect(opts['opt1']?[0], 'v11');
+      expect(opts['opt2']?.length, 3);
+      expect(opts['opt2']?[0], 'v21');
+      expect(opts['opt2']?[1], '-');
+      expect(opts['opt2']?[2], 'v22');
+      expect(opts['']?[0], '-v23');
     });
     test('numeric values', () {
       opts.clear();
@@ -106,7 +126,8 @@ void main() {
       expect(opts['b']?[0], r'\n');
     });
     test('multiple lists of values for the same option', () {
-      parseArgs('a::i|b|c:i', ['-a', '1,2', '-b', '-c', '3', '-a', '4', '5,6'], onParse,
+      parseArgs('a::i|b|c:i', ['-a', '1,2', '-b', '-c', '3', '-a', '4', '5,6'],
+          onParse,
           valueSeparator: ',');
       expect(opts['a']?.length, 5);
       expect(opts['a']?[0], 1);
@@ -119,7 +140,8 @@ void main() {
       expect(opts['c']?[0], 3);
     });
     test('sub-option is a value', () {
-      parseArgs('a::i|b::|and,or<', ['-a', '1', '-or', '2', '-or', '3', '-b="B,c"'], onParse,
+      parseArgs('a::i>and,or|b::|',
+          ['-a', '1', '-or', '2', '-or', '3', '-b="B,c"'], onParse,
           valueSeparator: ',');
       expect(opts['a']?.length, 5);
       expect(opts['a']?[0], 1);
@@ -148,8 +170,8 @@ void main() {
           throwsA((e) => e is OptValueUnexpectedException));
     });
     test('sub-option before first option exception', () {
-      expect(() => parseArgs('a|b|and,or<', ['-and', '-a', '1'], onParse),
-          throwsA((e) => e is SubOptIsFirstException));
+      expect(() => parseArgs('a:i|b>and,or', ['-and', '-a', '1'], onParse),
+          throwsA((e) => e is SubOptOrphanException));
     });
   });
 }

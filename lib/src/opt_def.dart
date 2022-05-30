@@ -20,9 +20,9 @@ class OptDef {
   ///
   static const optMultiRun = '+';
 
-  /// Preceding list is a list of sub-options: will be added to the list of values with the leading option name prefix
+  /// Followed by a list of sub-option names
   ///
-  static const subOptMarker = '<';
+  static const subOptSeparator = '>';
 
   /// Character meaning that an option requires a value
   ///
@@ -31,10 +31,6 @@ class OptDef {
   /// Indicates an option without a value (the flag)
   ///
   late final bool isFlag;
-
-  /// Indicates a sub-option (treated as a special option value)
-  ///
-  late final bool isSubOpt;
 
   /// List of option name lists
   ///
@@ -47,6 +43,10 @@ class OptDef {
   /// Radix for integer values
   ///
   late final int? radix;
+
+  /// List of sub-option names (wil be treated as special values)
+  ///
+  final List<String> subOpts = [];
 
   /// Enum for expected number of values
   ///
@@ -92,24 +92,34 @@ class OptDef {
   ///
   OptDef(String optDefStr) {
     var optDefStrNorm = normalize(optDefStr);
-    var optDefStrNormLen = optDefStrNorm.length;
     var valuePos = optDefStrNorm.lastIndexOf(valueMarker);
     var valueTypeStr = '';
 
     // Set indicators
     //
     isFlag = (valuePos < 0);
-    isSubOpt = optDefStrNorm.endsWith(OptDef.subOptMarker);
+
+    // Set sub-options
+    //
+    final subOptStart = optDefStrNorm.indexOf(OptDef.subOptSeparator);
+
+    if (subOptStart > 0) {
+      subOpts.clear();
+      optDefStrNorm
+          .substring(subOptStart + 1)
+          .trim()
+          .split(nameSeparator)
+          .forEach((x) {
+        subOpts.add(normalize(x));
+      });
+      optDefStrNorm = optDefStrNorm.substring(0, subOptStart);
+    }
 
     // Determine value count type and break the option definition string into
     // the list of names, value count type and extract value type as substring
     //
     if (isFlag) {
       valueCountType = OptValueCountType.none;
-
-      if (isSubOpt) {
-        optDefStrNorm = optDefStrNorm.substring(0, (optDefStrNorm.length - 1));
-      }
     } else {
       if ((valuePos > 0) && (optDefStrNorm[valuePos - 1] == valueMarker)) {
         valueCountType = OptValueCountType.multiple;
@@ -119,7 +129,7 @@ class OptDef {
 
       var typePos = valuePos + 1;
 
-      if (typePos < optDefStrNormLen) {
+      if (typePos < optDefStrNorm.length) {
         valueTypeStr = optDefStrNorm[typePos];
       }
 
@@ -144,7 +154,7 @@ class OptDef {
 
     // Determine value type and radix
     //
-    if (isFlag || isSubOpt) {
+    if (isFlag) {
       valueType = OptValueType.nil;
       radix = null;
     } else {
@@ -179,9 +189,30 @@ class OptDef {
 
     if (canThrow) {
       throw OptNameException(name);
-    } else {
+    }
+
+    return null;
+  }
+
+  /// Find an option definition by the option name
+  ///
+  static OptDef? findBySubOptName(List<OptDef> optDefs, String name,
+      {bool canThrow = false}) {
+    if (optDefs.isEmpty || name.isEmpty) {
       return null;
     }
+
+    for (var optDef in optDefs) {
+      if (optDef.subOpts.contains(name)) {
+        return optDef;
+      }
+    }
+
+    if (canThrow) {
+      throw SubOptOrphanException(name);
+    }
+
+    return null;
   }
 
   /// Create a list of option definitions by splitting a space-separated
@@ -233,15 +264,12 @@ class OptDef {
       }
     }
 
-    throw OptValueTypeException(name, strValue);
+    throw OptValueTypeException(name, [strValue]);
   }
 
   /// Validate the [actualCount] of values against the expected one for the option [name]
   ///
   void validateValueCount(String name, int actualCount) {
-    if (isSubOpt) {
-      return;
-    }
     switch (valueCountType) {
       case OptValueCountType.none:
         if (actualCount != 0) {

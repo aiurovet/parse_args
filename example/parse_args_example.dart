@@ -5,6 +5,20 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:parse_args/parse_args.dart';
 
+/// Simple filtering class
+///
+class Filter {
+  bool isCaseSensitive;
+  bool isPositive;
+  String pattern;
+
+  Filter(this.pattern, this.isPositive, this.isCaseSensitive);
+
+  @override
+  String toString() =>
+      '${isPositive ? '' : '!'}${isCaseSensitive ? '' : 'i'}"$pattern"';
+}
+
 /// Application options
 ///
 class Options {
@@ -26,6 +40,11 @@ class Options {
   get compression => _compression;
   var _compression = 6;
 
+  /// List of lists of filters
+  ///
+  get filterLists => _filterLists;
+  final _filterLists = <List<Filter>>[];
+
   /// Force otherwise incremental processing
   ///
   get isForced => _isForced;
@@ -41,20 +60,66 @@ class Options {
   var _isVerbose = false;
   get isVerbose => _isVerbose;
 
+  /// List of input files
+  ///
+  get inputFiles => _inputFiles;
+  final _inputFiles = <String>[];
+
+  /// List of output files
+  ///
+  get outputFiles => _outputFiles;
+  final _outputFiles = <String>[];
+
   /// Directory to start in (switch to at the beginning)
   ///
   get startDirName => _startDirName;
   var _startDirName = '';
 
-  /// The list of input files
+  /// Add next filter with the appropriate pattern and flags
   ///
-  get inputFiles => _inputFiles;
-  final _inputFiles = <String>[];
+  void addFilter(
+      String pattern, bool isPositive, bool isCaseSensitive, bool isNew) {
+    final filter = Filter(pattern, isPositive, isCaseSensitive);
 
-  /// The list of output files
+    if (isNew || _filterLists.isEmpty) {
+      _filterLists.add(<Filter>[filter]);
+    } else {
+      _filterLists[filterLists.length - 1].add(filter);
+    }
+  }
+
+  /// Add all filters with the appropriate pattern and flags
   ///
-  get outputFiles => _outputFiles;
-  final _outputFiles = <String>[];
+  void addFilters(List values) {
+    var isCaseSensitive = true;
+    var isNew = true;
+    var isPositive = true;
+
+    for (var value in values) {
+      switch (value) {
+        case '-and':
+          isNew = false;
+          break;
+        case '-case':
+          isCaseSensitive = true;
+          break;
+        case '-i':
+        case '-nocase':
+          isCaseSensitive = false;
+          break;
+        case '-not':
+        case '-^':
+          isPositive = false;
+          break;
+        case '-or':
+          isNew = true;
+          break;
+        default:
+          addFilter(value, isPositive, isCaseSensitive, isNew);
+          isPositive = true; // applies to a single (the next) value only
+      }
+    }
+  }
 
   /// General-purpose method to add file paths to destinaltion list
   ///
@@ -67,10 +132,13 @@ class Options {
   /// Sample application's command-line parser
   ///
   void parse(List<String> args) {
+    final ops = 'and,c,-case,--no-case,^,not, or ';
+
     parseArgs('''
-+|q,quiet|v,verbose|?,h,help|d,dir:|c,app-config:|f,force
- |i,inp,inp-files::|o,out,out-files::|p,compression:i|::
- |and,not,or<|
++|q,quiet|v,verbose|?,h,help|d,dir:|c,app-config:|f,force|p,compression:i
+ |l,filter:: > $ops
+ |i,inp,inp-files::
+ |o,out,out-files::
 ''', args, (isFirstRun, optName, values) {
       if (isFirstRun) {
         switch (optName) {
@@ -116,6 +184,10 @@ class Options {
             return;
           case 'force':
             printInfo('...isForced: $_isForced');
+            return;
+          case 'filter':
+            addFilters(values);
+            printInfo('...filter(s): $_filterLists');
             return;
           case 'inpfiles':
             addPaths(_inputFiles, values);
@@ -173,6 +245,8 @@ OPTIONS (case-insensitive and dash-insensitive):
 -c, -[-]app[-]config FILE            - configuration file path/name
 -d, -[-]dir DIR                      - directory to start in
 -f, -[-]force                        - overwrite existing output file
+-l, -[-]filter F1 [op] F2 [op] ...   - a list of filters with operations
+                                       (-and, -not, -or, -case, -nocase)
 -i, -[-]inp[-files] FILE1 [FILE2...] - the input file paths/names
 -o, -[-]out[-files] FILE1 [FILE2...] - the output file paths/names
 -p, -[-]compression INT              - compression level
@@ -180,7 +254,8 @@ OPTIONS (case-insensitive and dash-insensitive):
 
 EXAMPLE:
 
-${Options.appName} -AppConfig default.json --dir somedir/Documents -inp a*.txt ../Downloads/bb.xml --out-files ../Uploads/result.txt -- -result_more.txt
+${Options.appName} -AppConfig default.json -filter "abc" --dir somedir/Documents -inp a*.txt ../Downloads/bb.xml --out-files ../Uploads/result.txt -- -result_more.txt
+${Options.appName} -AppConfig default.json -filter "abc" -and "de" -or -not "fghi" -inp b*.txt ../Downloads/c.xml --out-files ../Uploads/result.txt -- -result_more.txt
 
 ${(error == null) || error.isEmpty ? '' : '*** ERROR: $error'}
 ''');
