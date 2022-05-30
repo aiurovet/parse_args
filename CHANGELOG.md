@@ -1,3 +1,7 @@
+## 0.6.1
+
+- Fixed and enhanced README.md
+
 ## 0.6.0
 
 - Added sub-options (see README.md for more detail)
