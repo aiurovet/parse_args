@@ -44,10 +44,12 @@ void main() {
       expect(opts.length, 1);
       expect(opts['expect']?.length, 1);
     });
-    test('opt name: stop', () {
+    test('opt name: noMore', () {
       opts.clear();
-      parseArgs('opt1:|opt2::',
-          ['-opt1', 'v11', '--opt2', 'v21', '-', 'v22', '--', '-v23'], onParse);
+      parseArgs(
+          'opt1:|opt2::',
+          ['-opt1', 'v11', '--opt2', 'v21', '-', 'v22', '---', '-v23'],
+          onParse);
       expect(opts.length, 2);
       expect(opts['opt1']?.length, 1);
       expect(opts['opt1']?[0], 'v11');
@@ -57,12 +59,10 @@ void main() {
       expect(opts['opt2']?[2], 'v22');
       expect(opts['opt2']?[3], '-v23');
     });
-    test('opt name: stop and drop', () {
+    test('opt name: stop', () {
       opts.clear();
-      parseArgs(
-          'opt1:|opt2::',
-          ['-opt1', 'v11', '--opt2', 'v21', '-', 'v22', '---', '-v23'],
-          onParse);
+      parseArgs('opt1:|opt2::',
+          ['-opt1', 'v11', '--opt2', 'v21', '-', 'v22', '--', '-v23'], onParse);
       expect(opts.length, 3);
       expect(opts['opt1']?.length, 1);
       expect(opts['opt1']?[0], 'v11');
@@ -139,8 +139,8 @@ void main() {
       expect(opts['c']?.length, 1);
       expect(opts['c']?[0], 3);
     });
-    test('sub-option is a value', () {
-      parseArgs('a::i>and,or|b::|',
+    test('valid sub-options of an option', () {
+      parseArgs('a::i>and,or|b::',
           ['-a', '1', '-or', '2', '-or', '3', '-b="B,c"'], onParse,
           valueSeparator: ',');
       expect(opts['a']?.length, 5);
@@ -152,6 +152,40 @@ void main() {
       expect(opts['b']?.length, 2);
       expect(opts['b']?[0], r'B');
       expect(opts['b']?[1], r'c');
+    });
+    test('valid sub-options of plain arguments', () {
+      parseArgs(
+          'a::i|b::|::>and,or',
+          [
+            '-a',
+            '1',
+            '2',
+            '3',
+            '-b="B,c"',
+            '--',
+            'x',
+            '-and',
+            '-not',
+            'y',
+            '-or',
+            'z'
+          ],
+          onParse,
+          valueSeparator: ',');
+      expect(opts['a']?.length, 3);
+      expect(opts['a']?[0], 1);
+      expect(opts['a']?[1], 2);
+      expect(opts['a']?[2], 3);
+      expect(opts['b']?.length, 2);
+      expect(opts['b']?[0], r'B');
+      expect(opts['b']?[1], r'c');
+      expect(opts['']?.length, 6);
+      expect(opts['']?[0], 'x');
+      expect(opts['']?[1], '-and');
+      expect(opts['']?[2], '-not');
+      expect(opts['']?[3], 'y');
+      expect(opts['']?[4], '-or');
+      expect(opts['']?[5], 'z');
     });
     test('undefined option exception', () {
       expect(() => parseArgs('a|b', ['-x'], onParse),

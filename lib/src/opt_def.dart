@@ -16,10 +16,6 @@ class OptDef {
   ///
   static const nameSeparator = ',';
 
-  /// Constant option name for the indicator of multiple runs over the list of arguments
-  ///
-  static const optMultiRun = '+';
-
   /// Followed by a list of sub-option names
   ///
   static const subOptSeparator = '>';

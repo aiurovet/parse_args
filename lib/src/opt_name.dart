@@ -8,19 +8,24 @@ enum OptNameStopMode { none, stop, stopAndDrop }
 /// of application arguments as well as validate its name and possible values
 ///
 class OptName {
-  /// A constant option name prefix
+  /// Name as indicator of multiple runs over the list of arguments
+  /// (used in the beginning of the options definition string)
+  ///
+  static const multiRun = '+';
+
+  /// Option for 'no more argument should be treated as an option name, but rather added as a value to the last option'
+  ///
+  static const noMore = '$prefix$prefix$prefix';
+
+  /// Constant option name prefix
   ///
   static const prefix = '-';
 
-  /// An option meaning 'no more option'
+  /// Option for 'plain arguments only beyond this point'
   ///
   static const stop = '$prefix$prefix';
 
-  /// An option meaning 'no more option and drop the last option name'
-  ///
-  static const stopAndDrop = '$stop$prefix';
-
-  /// Private: a regex to validate option name
+  /// Private regex to validate option name
   ///
   static final RegExp _isValid =
       RegExp('^[$prefix]+[a-z\\?\\-]', caseSensitive: false);
@@ -28,10 +33,10 @@ class OptName {
   /// Get the kind of end-of-options sign
   ///
   static OptNameStopMode getStopMode(String arg) {
-    if (arg == stop) {
+    if (arg == noMore) {
       return OptNameStopMode.stop;
     }
-    if (arg == stopAndDrop) {
+    if (arg == stop) {
       return OptNameStopMode.stopAndDrop;
     }
     return OptNameStopMode.none;

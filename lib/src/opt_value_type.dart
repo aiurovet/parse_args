@@ -6,11 +6,31 @@
 /// the user-defined handler
 ///
 enum OptValueType {
-  nil, // no type (default value)
-  bit, // binary int (radix = 2)
-  dec, // decimal int (radix = 10)
-  hex, // hexadecimal int (radix= 16)
-  num, // double precision float
-  oct, // octal in (radix = 10)
-  str // string
+  /// No type (default value)
+  ///
+  nil,
+
+  /// Binary int (radix = 2)
+  ///
+  bit,
+
+  /// Decimal int (radix = 10)
+  ///
+  dec,
+
+  /// Hexadecimal int (radix= 16)
+  ///
+  hex,
+
+  /// Double precision float
+  ///
+  num,
+
+  /// Octal in (radix = 10)
+  ///
+  oct,
+
+  /// String
+  ///
+  str
 }

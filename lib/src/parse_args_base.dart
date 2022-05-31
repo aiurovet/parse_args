@@ -25,7 +25,7 @@ typedef ParseArgsHandler = void Function(
 void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
     {String valueSeparator = ''}) {
   var optDefs = OptDef.listFromString(optDefStr);
-  var isMultiRun = (OptDef.find(optDefs, OptDef.optMultiRun) != null);
+  var isMultiRun = (OptDef.find(optDefs, OptName.multiRun) != null);
 
   var argCount = args.length;
   var argMap = <String, List>{};
@@ -76,7 +76,8 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
     if (isSubOpt) {
       if (optDef == null) {
         throw SubOptOrphanException(normName);
-      } else if (!optDef.subOpts.contains(normName)) {
+      }
+      if (!optDef.subOpts.contains(normName)) {
         throw SubOptMismatchException(optDef.lastName, normName);
       }
       value = '${OptName.prefix}$normName';

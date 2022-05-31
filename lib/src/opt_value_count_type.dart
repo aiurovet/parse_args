@@ -4,7 +4,15 @@
 /// Enumeration for the number of the option values
 ///
 enum OptValueCountType {
-  none, // no value
-  single, // one value
-  multiple, // one or more values
+  /// No value
+  ///
+  none,
+
+  /// One value
+  ///
+  single,
+
+  /// One or more values
+  ///
+  multiple,
 }

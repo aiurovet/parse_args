@@ -2,9 +2,11 @@ A getopts-like Dart package to parse command-line options simple way and in a po
 
 ## Features
 
-Comprises a function `parseArgs` and several custom exception classes. The function recognises options, i.e. any word starting with dashes `-` followed by an English letter. It then accumulates all possible values (every arg until the next option), validates against the user-defined format and executes a caller-defined function.
+- Comprises a function `parseArgs` and several custom exception classes.
 
-It might either accept any option and treat all its possible values as strings (compatibility with the older versions) or validate those using an options definitions string (the first parameter). This string can be multi-line, as all blank characters will get removed. Let's have a look at an example of such string:
+- The function recognises options, i.e. any word starting with dashes `-` followed by an English letter. It then accumulates all possible values (every arg until the next option), validates against the user-defined format and executes a caller-defined function.
+
+- It might either accept any option and treat all its possible values as strings (compatibility with the older versions) or validate those using an options definitions string (the first parameter). This string can be multi-line, as all blank characters will get removed. Let's have a look at an example of such string:
 
 ```
 +|q,quiet|v,verbose|?,h,help|d,dir:|c,app-config:|f,force|p,compression:i
@@ -24,18 +26,19 @@ It might either accept any option and treat all its possible values as strings (
 
   The array of values for the option "filter" will be: \["-case", "Ab", "Cd", "-nocase", "xyz", "-not", "uvw"\]. This allows you to traverse through the list elements and turn some flags on or off when a sub-option encountered (a string which starts with a single dash folloowed by an English letter). Certainly, one can argue that it is possible to introduce 4 different options and achieve the same result. But firstly, this is a simple example. And secondly, in the latter case, you'll also have to deal with the sequence of "extras" like: --filter-case-not should be equivalent to --filter-not-case, etc. Things can get really ugly without sub-options.
 
-The function allows a 'weird' and even an 'incorrect' way of passing multiple option values. However, this simplifies the case and makes obsolete the need to have plain arguments (the ones without an option). You can override this behaviour by passing the value separator. It will force to split just the next argument after an option instead of accumulating all arguments before the next option. You can pass plain arguments, but you should place those in front of the first option.
+- The function allows a 'weird' and even an 'incorrect' way of passing multiple option values. However, this simplifies the case and makes obsolete the need to have plain arguments (the ones without an option). You can override this behaviour by passing the value separator. It will force to split just the next argument after an option instead of accumulating all arguments before the next option. You can pass plain arguments, but you should place those in front of the first option.
 
-The function allows specifying values for the same option in multiple places as follows: -a 1 2 -b -c 3 -a 4 5 6 (an option -a will get an array of values \[1, 2, 4, 5, 6\])
+- The function allows specifying values for the same option in multiple places as follows: -a 1 2 -b -c 3 -a 4 5 6 (an option -a will get an array of values \[1, 2, 4, 5, 6\])
 
-The function allows an equal sign: -name=\["'\]value\["'\] or -name=\["'\]value1,value2,...\["'\]. And still, the separate plain arguments straight after will be considered as additional values of that option.
+- The function allows an equal sign: -name=\["'\]value\["'\] or -name=\["'\]value1,value2,...\["'\]. And still, the separate plain arguments straight after will be considered as additional values of that option.
 
-The function interprets double-dash `--` as a flag 'no more option' (the leading dash will be considered as part of any following argument).
-The function interprets triple-dash `---` to achieve the same effect as above as well as to stop adding values to the last normal option.
+- The function interprets double-dash `--` as a flag meaning that any argument beyond this point will be treated as plain argument under no option.
 
-The function does not allow bundling for short (single-character) option names, but this generally encourages the use of long option names for better clarity.
+- The function interprets triple-dash `---` as a flag meaning that no more argument should be treated as an option name, but rather added as a value to the last option.
 
-The function also does not support negation by the use of plus `+` rather than dash `-`.
+- The function does not allow bundling for short (single-character) option names, but this generally encourages the use of long option names for better clarity.
+
+- The function also does not support negation by the use of plus `+` rather than dash `-`.
 
 ## Usage
 
@@ -56,7 +59,8 @@ class Filter {
   Filter(this.pattern, this.isPositive, this.isCaseSensitive);
 
   @override
-  String toString() => '${isPositive ? '' : '!'}${isCaseSensitive ? '' : 'i'}"$pattern"';
+  String toString() =>
+      '${isPositive ? '' : '!'}${isCaseSensitive ? '' : 'i'}"$pattern"';
 }
 
 /// Application options
@@ -117,7 +121,8 @@ class Options {
 
   /// Add next filter with the appropriate pattern and flags
   ///
-  void addFilter(String pattern, bool isPositive, bool isCaseSensitive, bool isNew) {
+  void addFilter(
+      String pattern, bool isPositive, bool isCaseSensitive, bool isNew) {
     final filter = Filter(pattern, isPositive, isCaseSensitive);
 
     if (isNew || _filterLists.isEmpty) {
@@ -136,9 +141,11 @@ class Options {
 
     for (var value in values) {
       switch (value) {
+        case '-a':
         case '-and':
           isNew = false;
           break;
+        case '-c':
         case '-case':
           isCaseSensitive = true;
           break;
@@ -146,10 +153,11 @@ class Options {
         case '-nocase':
           isCaseSensitive = false;
           break;
+        case '-n':
         case '-not':
-        case '-^':
           isPositive = false;
           break;
+        case '-o':
         case '-or':
           isNew = true;
           break;
@@ -171,13 +179,14 @@ class Options {
   /// Sample application's command-line parser
   ///
   void parse(List<String> args) {
-    final ops = 'and,c,-case,--no-case,^,not, or ';
+    final ops = 'a,and,c,-case, i,--no-case,n,not, o,  or ';
 
     parseArgs('''
 +|q,quiet|v,verbose|?,h,help|d,dir:|c,app-config:|f,force|p,compression:i
  |l,filter:: > $ops
  |i,inp,inp-files::
  |o,out,out-files::
+ |::> $ops
 ''', args, (isFirstRun, optName, values) {
       if (isFirstRun) {
         switch (optName) {

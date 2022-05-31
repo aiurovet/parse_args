@@ -1,3 +1,9 @@
+## 0.6.2
+
+- Breaking: swapped the meaning of '--' (now: no more option and stop the last option) and '---' (now: no more option, but don't stop the last option). This is much needed for the compatibility with the standard interpretation of '--'
+- Fixed minor issues in the example
+- Added documentation
+
 ## 0.6.1
 
 - Fixed and enhanced README.md

@@ -97,9 +97,11 @@ class Options {
 
     for (var value in values) {
       switch (value) {
+        case '-a':
         case '-and':
           isNew = false;
           break;
+        case '-c':
         case '-case':
           isCaseSensitive = true;
           break;
@@ -107,10 +109,11 @@ class Options {
         case '-nocase':
           isCaseSensitive = false;
           break;
+        case '-n':
         case '-not':
-        case '-^':
           isPositive = false;
           break;
+        case '-o':
         case '-or':
           isNew = true;
           break;
@@ -132,13 +135,14 @@ class Options {
   /// Sample application's command-line parser
   ///
   void parse(List<String> args) {
-    final ops = 'and,c,-case,--no-case,^,not, or ';
+    final ops = 'a,and,c,-case, i,--no-case,n,not, o,  or ';
 
     parseArgs('''
 +|q,quiet|v,verbose|?,h,help|d,dir:|c,app-config:|f,force|p,compression:i
  |l,filter:: > $ops
  |i,inp,inp-files::
  |o,out,out-files::
+ |::> $ops
 ''', args, (isFirstRun, optName, values) {
       if (isFirstRun) {
         switch (optName) {
