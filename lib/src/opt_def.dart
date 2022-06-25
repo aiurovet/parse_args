@@ -142,7 +142,7 @@ class OptDef {
       var name = normalize(x);
 
       if (!_nameChecker.hasMatch(name)) {
-        throw OptNameException(name);
+        throw (name.isEmpty ? OptPlainArgException() : OptNameException(name));
       }
 
       names.add(name);
@@ -173,7 +173,7 @@ class OptDef {
   ///
   static OptDef? find(List<OptDef> optDefs, String name,
       {bool canThrow = false}) {
-    if (optDefs.isEmpty || name.isEmpty) {
+    if (optDefs.isEmpty) {
       return null;
     }
 
@@ -184,7 +184,7 @@ class OptDef {
     }
 
     if (canThrow) {
-      throw OptNameException(name);
+      throw (name.isEmpty ? OptPlainArgException() : OptNameException(name));
     }
 
     return null;

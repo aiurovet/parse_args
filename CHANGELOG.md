@@ -1,3 +1,8 @@
+## 0.7.0
+
+- Breaking: if an option has no value and is followed by a non-option, the latter is treated as a plain argument; if an option has a single value followed by more than one non-options, the first of those is treated as an option value, and the following ones are considered as plain arguments until the next option name comes.
+- Added OptPlanArgsException which is thrown when the list of possible options does not admit plain arguments
+
 ## 0.6.2
 
 - Breaking: swapped the meaning of '--' (now: no more option and stop the last option) and '---' (now: no more option, but don't stop the last option). This is much needed for the compatibility with the standard interpretation of '--'

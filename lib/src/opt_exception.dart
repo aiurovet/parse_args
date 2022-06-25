@@ -22,17 +22,19 @@ class OptException implements Exception {
 
   /// Exception's constructor: mandatory option [name] and the list of values if relevant
   ///
-  OptException(this.name, [this.values]) {
-    var hasValue = (values?.isNotEmpty ?? false);
-    details = '"$name"${hasValue ? ': ${values.toString()}' : ''}';
+  OptException([this.name = '', this.values]) {
+    if (name.isNotEmpty) {
+      details = '"$name": ';
+    }
+    if (values?.isNotEmpty ?? false) {
+      details += values.toString();
+    }
   }
 
   /// An override of the default toString() showing explanation and data
   ///
   @override
-  String toString() {
-    return '$description $details';
-  }
+  String toString() => details.isEmpty ? description : '$description $details';
 }
 
 /// When encountered an unrecognised option
@@ -46,6 +48,19 @@ class OptNameException extends OptException {
   /// Specific constructor
   ///
   OptNameException(super.optName);
+}
+
+/// When plain arguments are not supported
+///
+class OptPlainArgException extends OptException {
+  /// An implementation of the explanation
+  ///
+  @override
+  String get description => 'Plain arguments are not supported';
+
+  /// Specific constructor
+  ///
+  OptPlainArgException();
 }
 
 /// When encountered an option with no value

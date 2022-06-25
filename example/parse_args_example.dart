@@ -167,7 +167,7 @@ class Options {
             return;
         }
       } else {
-        printVerbose('Parsing $optName => $values');
+        printVerbose('Parsing "$optName" => $values');
 
         // No need to assign any option value which does not depend on another one, just
         // printing the info. Essentially, these cases can be omitted for the second run

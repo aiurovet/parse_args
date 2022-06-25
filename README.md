@@ -13,6 +13,7 @@ A getopts-like Dart package to parse command-line options simple way and in a po
  |l,filter:: > and,c,-case,--no-case,^,not, or 
  |i,inp,inp-files::
  |o,out,out-files::
+ |::
  ```
 
 - Every option definition is separated by the pipe `|` character.
@@ -24,13 +25,12 @@ A getopts-like Dart package to parse command-line options simple way and in a po
 
   `myapp -filter -case "Ab" "Cd" --no-case "xyz" -not "uvw"`
 
-  The array of values for the option "filter" will be: \["-case", "Ab", "Cd", "-nocase", "xyz", "-not", "uvw"\]. This allows you to traverse through the list elements and turn some flags on or off when a sub-option encountered (a string which starts with a single dash folloowed by an English letter). Certainly, one can argue that it is possible to introduce 4 different options and achieve the same result. But firstly, this is a simple example. And secondly, in the latter case, you'll also have to deal with the sequence of "extras" like: --filter-case-not should be equivalent to --filter-not-case, etc. Things can get really ugly without sub-options.
+  The array of values for the option "filter" will be: `["-case", "Ab", "Cd", "-nocase", "xyz", "-not", "uvw"]`. This allows you to traverse through the list elements and turn some flags on or off when a sub-option encountered (a string which starts with a single dash folloowed by an English letter). Certainly, one can argue that it is possible to introduce 4 different options and achieve the same result. But firstly, this is a simple example. And secondly, in the latter case, you'll also have to deal with the sequence of "extras" like: --filter-case-not should be equivalent to --filter-not-case, etc. Things can get really ugly without sub-options.
 
-- The function allows a 'weird' and even an 'incorrect' way of passing multiple option values. However, this simplifies the case and makes obsolete the need to have plain arguments (the ones without an option). You can override this behaviour by passing the value separator. It will force to split just the next argument after an option instead of accumulating all arguments before the next option. You can pass plain arguments, but you should place those in front of the first option.
+- The function allows a 'weird' (or even 'incorrect') way of passing multiple option values. However, this simplifies the case and makes obsolete the need to have plain arguments (the ones without an option). You can override this behaviour by passing the value separator or by the use of an equal sign: `-a 1,bc,2 3 4` or `-a=1 2 3 4` (in both cases, the list of plain arguments will receive `[2, 3, 4]`)
+- Also if you wish to pass plain arguments, you should specify that in the options definition string explicitly. The format is the same as for options, but the  option name should be empty: `|:`, `|::`, `|::i`, `|::>and,or`.
 
-- The function allows specifying values for the same option in multiple places as follows: -a 1 2 -b -c 3 -a 4 5 6 (an option -a will get an array of values \[1, 2, 4, 5, 6\])
-
-- The function allows an equal sign: -name=\["'\]value\["'\] or -name=\["'\]value1,value2,...\["'\]. And still, the separate plain arguments straight after will be considered as additional values of that option.
+- The function allows an equal sign: `-name=["']value"']` or `-name=["']value1,value2,...["']` or `-name "'value1,value2,...["']`. However, the separate plain arguments straight after this will NOT be considered as additional values of that option, but rather as plain arguments.
 
 - The function interprets double-dash `--` as a flag meaning that any argument beyond this point will be treated as plain argument under no option.
 

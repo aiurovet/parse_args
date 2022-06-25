@@ -33,6 +33,7 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
   var optNameStopMode = OptNameStopMode.none;
   var ordMap = <int, String>{};
   OptDef? optDef;
+  final optDefPlain = OptDef.find(optDefs, OptName.plainArgs);
 
   // Loop through all arguments
   //
@@ -53,17 +54,21 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
       continue;
     }
 
+    var canKeepOptDef = true;
+
     // Get the option name if encountered
     //
     final isOption = (!isValueOnly && OptName.isValid(arg));
-    var name = (isOption ? arg : '');
+    var name = (isOption ? arg : optDef?.lastName ?? OptName.plainArgs);
     var value = '';
 
     if (isOption) {
       final breakPos = name.indexOf('=');
 
       if (breakPos >= 0) {
-        value = name.substring(breakPos + 1).unquote();
+        canKeepOptDef = false;
+        String s = name.substring(breakPos + 1);
+        value = s.unquote();
         name = name.substring(0, breakPos);
       }
     }
@@ -82,20 +87,22 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
       }
       value = '${OptName.prefix}$normName';
       ++argNo;
-    } else if (isOption) {
+    } else if (foundOptDef != null) {
       optDef = foundOptDef;
-      ++argNo;
+      if (isOption) {
+        ++argNo;
+      }
     }
 
     // Populate the list of values for the current option
     // (either the next argument split by the non-empty valueSeparator,
     // or all arguments beyond that and prior to the next option)
     //
-    final lastName = optDef?.lastName ?? '';
+    final lastName = optDef?.lastName ?? OptName.plainArgs;
     final values = [];
 
     if (value.isEmpty) {
-      for (; argNo < argCount; argNo++) {
+      for (var valNo = 0; argNo < argCount; argNo++, valNo++) {
         arg = args[argNo];
 
         if (!isValueOnly) {
@@ -113,6 +120,23 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
           if (OptName.isValid(arg)) {
             break;
           }
+
+          if (optDef != null) {
+            switch (optDef.valueCountType) {
+              case OptValueCountType.none:
+                canKeepOptDef = false;
+                break;
+              case OptValueCountType.single:
+                canKeepOptDef = (canKeepOptDef && (valNo <= 0));
+                break;
+              default:
+                break;
+            }
+
+            if (!canKeepOptDef) {
+              break;
+            }
+          }
         }
 
         // Add the actual values
@@ -120,18 +144,18 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
         if (valueSeparator.isEmpty) {
           values.add(optDef?.toTypedValue(lastName, arg) ?? arg);
         } else {
-          for (var v in arg.split(valueSeparator)) {
+          var vv = arg.split(valueSeparator);
+          for (var v in vv) {
             values.add(optDef?.toTypedValue(lastName, v) ?? v);
           }
-          ++argNo;
-          break;
+          canKeepOptDef = (canKeepOptDef && (vv.length <= 1));
         }
       }
     } else {
       if (isSubOpt) {
         values.add(value);
       } else if (valueSeparator.isEmpty) {
-        values.add(optDef?.toTypedValue(lastName, arg) ?? arg);
+        values.add(optDef?.toTypedValue(lastName, value) ?? arg);
       } else {
         for (var v in value.split(valueSeparator)) {
           values.add(optDef?.toTypedValue(lastName, v) ?? v);
@@ -163,6 +187,10 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
       var ordNo = (optDef == null ? -1 : optDefs.indexOf(optDef));
       ordMap[ordNo] = lastName;
     }
+
+    if (!canKeepOptDef) {
+      optDef = optDefPlain;
+    }
   }
 
   // Call the user-defined handler for the actual processing in the order of appearance of definitions
@@ -173,7 +201,7 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
 
   for (var step = 1; step <= lastStep; step++) {
     for (var i in sortedOrdKeys) {
-      var name = ordMap[i] ?? '';
+      var name = ordMap[i] ?? OptName.plainArgs;
       handler((step == 1), name, argMap[name] ?? emptyList);
     }
   }

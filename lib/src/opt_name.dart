@@ -17,6 +17,10 @@ class OptName {
   ///
   static const noMore = '$prefix$prefix$prefix';
 
+  /// Name for the plain args
+  ///
+  static const plainArgs = '';
+
   /// Constant option name prefix
   ///
   static const prefix = '-';
