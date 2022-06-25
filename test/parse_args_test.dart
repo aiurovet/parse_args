@@ -64,7 +64,8 @@ void main() {
     });
     test('plain args after an option with multiple values', () {
       opts.clear();
-      parseArgs('a::|::', ['-a', 'x,y,z', '1', '2'], onParse, valueSeparator: ',');
+      parseArgs('a::|::', ['-a', 'x,y,z', '1', '2'], onParse,
+          valueSeparator: ',');
       expect(opts, {
         'a': ['x', 'y', 'z'],
         '': ['1', '2']
