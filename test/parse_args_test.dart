@@ -25,6 +25,14 @@ void main() {
         '': ['a', 'bc']
       });
     });
+    test('start with a sub-option of plain args', () {
+      opts.clear();
+      parseArgs('h|::>not', ['--not', 'a', 'bc', '-h'], onParse);
+      expect(opts, {
+        'h': [],
+        '': ['-not', 'a', 'bc']
+      });
+    });
     test('similar options', () {
       opts.clear();
       parseArgs(

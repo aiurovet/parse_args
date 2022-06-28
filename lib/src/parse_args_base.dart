@@ -80,7 +80,10 @@ void parseArgs(String? optDefStr, List<String> args, ParseArgsHandler handler,
 
     if (isSubOpt) {
       if (optDef == null) {
-        throw SubOptOrphanException(normName);
+        optDef = OptDef.find(optDefs, '');
+        if (optDef == null) {
+          throw SubOptOrphanException(normName);
+        }
       }
       if (!optDef.subOpts.contains(normName)) {
         throw SubOptMismatchException(optDef.lastName, normName);

@@ -1,3 +1,9 @@
+## 0.7.1
+
+- A bugfix for a sub-option of a plain argument
+- Added more documentation
+- Improved readability of the example
+
 ## 0.7.0
 
 - Breaking: if an option has no value and is followed by a non-option, the latter is treated as a plain argument; if an option has a single value followed by more than one non-options, the first of those is treated as an option value, and the following ones are considered as plain arguments until the next option name comes.

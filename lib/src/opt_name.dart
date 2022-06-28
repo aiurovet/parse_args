@@ -1,7 +1,23 @@
 // Copyright (c) 2022, Alexander Iurovetski
 // All rights reserved under MIT license (see LICENSE file)
 
-enum OptNameStopMode { none, stop, stopAndDrop }
+/// The way to stop testing arguments on representing option names
+///
+enum OptNameStopMode {
+  /// No stop yet (initializer)
+  ///
+  none,
+
+  /// Stop testing arguments on representing option names, but
+  /// keep the last option active (the following arguments are its values)
+  ///
+  stop,
+
+  /// Stop testing arguments on representing option names and
+  /// drop the last active option name (the following arguments are plain)
+  ///
+  stopAndDrop
+}
 
 /// A class which holds a single option definition
 /// It will be used to look for every option while going through the list

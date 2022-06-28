@@ -142,76 +142,88 @@ class Options {
  |l,filter:: > $ops
  |i,inp,inp-files::
  |o,out,out-files::
- |::> $ops
+ |::>$ops
 ''', args, (isFirstRun, optName, values) {
       if (isFirstRun) {
-        switch (optName) {
-          case 'compression':
-            _compression = values[0];
-            return;
-          case 'help':
-            printUsage();
-          case 'dir':
-            _startDirName = values[0];
-            return;
-          case 'force':
-            _isForced = true;
-            return;
-          case 'quiet':
-            _isQuiet = true;
-            return;
-          case 'verbose':
-            _isVerbose = true;
-            return;
-          default:
-            return;
-        }
+        parseFirstRun(optName, values);
       } else {
-        printVerbose('Parsing "$optName" => $values');
-
-        // No need to assign any option value which does not depend on another one, just
-        // printing the info. Essentially, these cases can be omitted for the second run
-        //
-        switch (optName) {
-          case '':
-            printInfo('...plain arg count: ${values.length}');
-            return;
-          case 'appconfig':
-            _appConfigPath = p.join(_startDirName, values[0]);
-            printInfo('...appConfigPath: $_appConfigPath');
-            return;
-          case 'compression':
-            printInfo('...compression: $_compression');
-            return;
-          case 'dir':
-            printInfo('...startDirName: $_startDirName');
-            return;
-          case 'force':
-            printInfo('...isForced: $_isForced');
-            return;
-          case 'filter':
-            addFilters(values);
-            printInfo('...filter(s): $_filterLists');
-            return;
-          case 'inpfiles':
-            addPaths(_inputFiles, values);
-            printInfo('...inp file(s): $_inputFiles');
-            return;
-          case 'outfiles':
-            addPaths(_outputFiles, values);
-            printInfo('...out file(s): $_outputFiles');
-            return;
-          case 'quiet':
-            printInfo('...quiet: $_isQuiet');
-            return;
-          case 'verbose':
-            printInfo('...verbose: $_isVerbose');
-            return;
-          default:
-            return;
-        }
+        parseSecondRun(optName, values);
       }
     });
+  }
+
+  /// Parse options - first run
+  ///
+  void parseFirstRun(String optName, List values) {
+    switch (optName) {
+      case 'compression':
+        _compression = values[0];
+        return;
+      case 'help':
+        printUsage();
+      case 'dir':
+        _startDirName = values[0];
+        return;
+      case 'force':
+        _isForced = true;
+        return;
+      case 'quiet':
+        _isQuiet = true;
+        return;
+      case 'verbose':
+        _isVerbose = true;
+        return;
+      default:
+        return;
+    }
+  }
+
+  /// Parse options - second run
+  ///
+  void parseSecondRun(String optName, List values) {
+    printVerbose('Parsing "$optName" => $values');
+
+    // No need to assign any option value which does not depend on another one, just
+    // printing the info. Essentially, these cases can be omitted for the second run
+    //
+    switch (optName) {
+      case '':
+        printInfo('...plain arg count: ${values.length}');
+        return;
+      case 'appconfig':
+        _appConfigPath = p.join(_startDirName, values[0]);
+        printInfo('...appConfigPath: $_appConfigPath');
+        return;
+      case 'compression':
+        printInfo('...compression: $_compression');
+        return;
+      case 'dir':
+        printInfo('...startDirName: $_startDirName');
+        return;
+      case 'force':
+        printInfo('...isForced: $_isForced');
+        return;
+      case 'filter':
+        addFilters(values);
+        printInfo('...filter(s): $_filterLists');
+        return;
+      case 'inpfiles':
+        addPaths(_inputFiles, values);
+        printInfo('...inp file(s): $_inputFiles');
+        return;
+      case 'outfiles':
+        addPaths(_outputFiles, values);
+        printInfo('...out file(s): $_outputFiles');
+        return;
+      case 'quiet':
+        printInfo('...quiet: $_isQuiet');
+        return;
+      case 'verbose':
+        printInfo('...verbose: $_isVerbose');
+        return;
+      default:
+        return;
+    }
   }
 
   /// A very simple info logger
