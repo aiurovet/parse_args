@@ -1,22 +1,29 @@
 // Copyright (c) 2022, Alexander Iurovetski
 // All rights reserved under MIT license (see LICENSE file)
 
-import 'dart:io';
-import 'package:path/path.dart' as p;
+import 'package:file/local.dart';
+import 'package:glob/glob.dart';
 import 'package:parse_args/parse_args.dart';
+import 'package:thin_logger/thin_logger.dart';
+
+/// Pretty basic singleton for simple FileSystem
+///
+final _fs = LocalFileSystem();
+
+/// Pretty basic singleton for simple logging
+///
+final _logger = Logger();
 
 /// Simple filtering class
 ///
 class Filter {
-  bool isCaseSensitive;
   bool isPositive;
-  String pattern;
+  Glob glob;
 
-  Filter(this.pattern, this.isPositive, this.isCaseSensitive);
+  Filter(this.glob, this.isPositive);
 
   @override
-  String toString() =>
-      '${isPositive ? '' : '!'}${isCaseSensitive ? '' : 'i'}"$pattern"';
+  String toString() => '${isPositive ? glob : '!($glob)'}';
 }
 
 /// Application options
@@ -32,66 +39,98 @@ class Options {
 
   /// Application configuration path
   ///
-  get appConfigPath => _appConfigPath;
+  String get appConfigPath => _appConfigPath;
   var _appConfigPath = '';
 
   /// Compression level
   ///
-  get compression => _compression;
+  int get compression => _compression;
   var _compression = 6;
 
   /// List of lists of filters
   ///
-  get filterLists => _filterLists;
+  List<List<Filter>> get filterLists => _filterLists;
   final _filterLists = <List<Filter>>[];
 
   /// Force otherwise incremental processing
   ///
-  get isForced => _isForced;
+  bool get isForced => _isForced;
   var _isForced = false;
-
-  /// Quiet mode (no print)
-  ///
-  get isQuiet => _isQuiet;
-  var _isQuiet = false;
-
-  /// Verbose mode (print extra detailed info)
-  ///
-  var _isVerbose = false;
-  get isVerbose => _isVerbose;
 
   /// List of input files
   ///
-  get inputFiles => _inputFiles;
+  List<String> get inputFiles => _inputFiles;
   final _inputFiles = <String>[];
 
   /// List of output files
   ///
-  get outputFiles => _outputFiles;
+  List<String> get outputFiles => _outputFiles;
   final _outputFiles = <String>[];
+
+  /// Directory to start in (switch to at the beginning)
+  ///
+  List<String> get plainArgs => _plainArgs;
+  var _plainArgs = <String>[];
 
   /// Directory to start in (switch to at the beginning)
   ///
   get startDirName => _startDirName;
   var _startDirName = '';
 
-  /// Add next filter with the appropriate pattern and flags
+  /// Sample application's command-line parser
   ///
-  void addFilter(
-      String pattern, bool isPositive, bool isCaseSensitive, bool isNew) {
-    final filter = Filter(pattern, isPositive, isCaseSensitive);
+  Future parse(List<String> args) async {
+    final ops = 'a,and, n,--not, o,  o-r ';
 
-    if (isNew || _filterLists.isEmpty) {
-      _filterLists.add(<Filter>[filter]);
-    } else {
-      _filterLists[filterLists.length - 1].add(filter);
+    final optDefStr = '''
+|q,quiet|v,verbose|?,h,help|d,dir:|c,app-config:|f,force|p,compression:i
+|l,filter::g  > $ops
+|i,inp,inp-files::
+|o,out,out-files::
+|::>$ops
+''';
+
+    final result = parseArgs(optDefStr, args);
+
+    if (result.isSet('help')) {
+      usage();
     }
+
+    _logger.level = result.isSet('quiet')
+        ? Logger.levelQuiet
+        : result.isSet('verbose')
+            ? Logger.levelVerbose
+            : _logger.level;
+
+    _logger.verbose('Parsed ${result.strings}');
+
+    _appConfigPath =
+        _fs.path.join(_startDirName, result.getString('appconfig'));
+    _compression = result.getValue('compression', 6);
+    _isForced = result.isSet('force');
+    _plainArgs = result.getStrings('');
+
+    setFilters(result.getValues('filter'));
+
+    await setStartDirName(result.getString('dir'));
+    await setPaths(_inputFiles, true, result.getStrings('inpfiles'));
+    await setPaths(_outputFiles, false, result.getStrings('outfiles'));
+
+    _logger.out('''
+AppCfgPath: "$_appConfigPath"
+Compress:   $_compression
+isForced:   $_isForced
+PlainArgs:  $_plainArgs
+StartDir:   "$_startDirName"
+Filters:    $_filterLists
+InpFiles:   $_inputFiles
+OutFiles:   $_outputFiles
+''');
   }
 
   /// Add all filters with the appropriate pattern and flags
   ///
-  void addFilters(List values) {
-    var isCaseSensitive = true;
+  void setFilters(List values) {
     var isNew = true;
     var isPositive = true;
 
@@ -100,25 +139,22 @@ class Options {
         case '-a':
         case '-and':
           isNew = false;
-          break;
-        case '-c':
-        case '-case':
-          isCaseSensitive = true;
-          break;
-        case '-i':
-        case '-nocase':
-          isCaseSensitive = false;
-          break;
+          continue;
         case '-n':
         case '-not':
           isPositive = false;
-          break;
+          continue;
         case '-o':
         case '-or':
           isNew = true;
-          break;
+          continue;
         default:
-          addFilter(value, isPositive, isCaseSensitive, isNew);
+          final filter = Filter(value, isPositive);
+          if (isNew || _filterLists.isEmpty) {
+            _filterLists.add([filter]);
+          } else {
+            _filterLists[filterLists.length - 1].add(filter);
+          }
           isPositive = true; // applies to a single (the next) value only
       }
     }
@@ -126,126 +162,31 @@ class Options {
 
   /// General-purpose method to add file paths to destinaltion list
   ///
-  void addPaths(List<String> to, List from) {
+  Future setPaths(List<String> to, bool forceExists, List from) async {
     for (var x in from) {
-      to.add(p.isAbsolute(x) ? x : p.join(_startDirName, x));
-    }
-  }
+      final path = _fs.path.isAbsolute(x) ? x : _fs.path.join(_startDirName, x);
+      to.add(path);
 
-  /// Sample application's command-line parser
-  ///
-  void parse(List<String> args) {
-    final ops = 'a,and,c,-case, i,--no-case,n,not, o,  or ';
-
-    parseArgs('''
-+|q,quiet|v,verbose|?,h,help|d,dir:|c,app-config:|f,force|p,compression:i
- |l,filter:: > $ops
- |i,inp,inp-files::
- |o,out,out-files::
- |::>$ops
-''', args, (isFirstRun, optName, values) {
-      if (isFirstRun) {
-        parseFirstRun(optName, values);
-      } else {
-        parseSecondRun(optName, values);
+      if (forceExists && !(await _fs.file(path).exists())) {
+        _logger.error('*** ERROR: Input file not found: "$path"');
       }
-    });
-  }
-
-  /// Parse options - first run
-  ///
-  void parseFirstRun(String optName, List values) {
-    switch (optName) {
-      case 'compression':
-        _compression = values[0];
-        return;
-      case 'help':
-        printUsage();
-      case 'dir':
-        _startDirName = values[0];
-        return;
-      case 'force':
-        _isForced = true;
-        return;
-      case 'quiet':
-        _isQuiet = true;
-        return;
-      case 'verbose':
-        _isVerbose = true;
-        return;
-      default:
-        return;
     }
   }
 
-  /// Parse options - second run
+  /// General-purpose method to add file paths to destinaltion list
   ///
-  void parseSecondRun(String optName, List values) {
-    printVerbose('Parsing "$optName" => $values');
+  Future setStartDirName(String value) async {
+    _startDirName = value;
 
-    // No need to assign any option value which does not depend on another one, just
-    // printing the info. Essentially, these cases can be omitted for the second run
-    //
-    switch (optName) {
-      case '':
-        printInfo('...plain arg count: ${values.length}');
-        return;
-      case 'appconfig':
-        _appConfigPath = p.join(_startDirName, values[0]);
-        printInfo('...appConfigPath: $_appConfigPath');
-        return;
-      case 'compression':
-        printInfo('...compression: $_compression');
-        return;
-      case 'dir':
-        printInfo('...startDirName: $_startDirName');
-        return;
-      case 'force':
-        printInfo('...isForced: $_isForced');
-        return;
-      case 'filter':
-        addFilters(values);
-        printInfo('...filter(s): $_filterLists');
-        return;
-      case 'inpfiles':
-        addPaths(_inputFiles, values);
-        printInfo('...inp file(s): $_inputFiles');
-        return;
-      case 'outfiles':
-        addPaths(_outputFiles, values);
-        printInfo('...out file(s): $_outputFiles');
-        return;
-      case 'quiet':
-        printInfo('...quiet: $_isQuiet');
-        return;
-      case 'verbose':
-        printInfo('...verbose: $_isVerbose');
-        return;
-      default:
-        return;
-    }
-  }
-
-  /// A very simple info logger
-  ///
-  void printInfo(String line) {
-    if (!_isQuiet) {
-      print(line);
-    }
-  }
-
-  /// A very simple verbose logger
-  ///
-  void printVerbose(String line) {
-    if (!_isQuiet && _isVerbose) {
-      print(line);
+    if (!(await _fs.directory(_startDirName).exists())) {
+      _logger.error('*** ERROR: Invalid startup directory: "$_startDirName"');
     }
   }
 
   /// Displaying the help and optionally, an error message
   ///
-  Never printUsage([String? error]) {
-    stderr.writeln('''
+  Never usage([String? error]) {
+    throw Exception('''
 
 ${Options.appName} ${Options.appVersion} (c) 2022 My Name
 
@@ -275,21 +216,19 @@ ${Options.appName} -AppConfig default.json -filter "abc" -and "de" -or -not "fgh
 
 ${(error == null) || error.isEmpty ? '' : '*** ERROR: $error'}
 ''');
-
-    exit(1);
   }
 }
 
 /// Sample application entry point
 ///
-void main(List<String> args) {
+Future main(List<String> args) async {
   try {
     var o = Options();
-    o.parse(args);
+    await o.parse(args);
     // the rest of processing
   } on Exception catch (e) {
-    stderr.writeln(e.toString());
+    _logger.error(e.toString());
   } on Error catch (e) {
-    stderr.writeln(e.toString());
+    _logger.error(e.toString());
   }
 }

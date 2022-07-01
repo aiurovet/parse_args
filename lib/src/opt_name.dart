@@ -1,23 +1,7 @@
 // Copyright (c) 2022, Alexander Iurovetski
 // All rights reserved under MIT license (see LICENSE file)
 
-/// The way to stop testing arguments on representing option names
-///
-enum OptNameStopMode {
-  /// No stop yet (initializer)
-  ///
-  none,
-
-  /// Stop testing arguments on representing option names, but
-  /// keep the last option active (the following arguments are its values)
-  ///
-  stop,
-
-  /// Stop testing arguments on representing option names and
-  /// drop the last active option name (the following arguments are plain)
-  ///
-  stopAndDrop
-}
+import 'package:parse_args/parse_args.dart';
 
 /// A class which holds a single option definition
 /// It will be used to look for every option while going through the list
@@ -41,14 +25,22 @@ class OptName {
   ///
   static const prefix = '-';
 
+  /// Constant name/value separator
+  ///
+  static const valueSeparator = '=';
+
   /// Option for 'plain arguments only beyond this point'
   ///
   static const stop = '$prefix$prefix';
 
-  /// Private regex to validate option name
+  /// Private: regex to validate option name
   ///
-  static final RegExp _isValid =
+  static final RegExp _isValidRE =
       RegExp('^[$prefix]+[a-z\\?\\-]', caseSensitive: false);
+
+  /// Private: regex for an option definition name
+  ///
+  static final RegExp _normalizeRE = RegExp('[\\s\\$prefix]');
 
   /// Get the kind of end-of-options sign
   ///
@@ -64,5 +56,21 @@ class OptName {
 
   /// Check whether a string is a valid option name
   ///
-  static bool isValid(String name) => _isValid.hasMatch(name);
+  static bool isValid(String name) => _isValidRE.hasMatch(name);
+
+  /// Make a normalized option from [name]: no space, no dash, lowercase
+  ///
+  static String normalize(String name,
+      [OptNameCaseMode caseMode = OptNameCaseMode.smart]) {
+    var result = name.replaceAll(_normalizeRE, '');
+
+    switch (caseMode) {
+      case OptNameCaseMode.force:
+        return result;
+      case OptNameCaseMode.smart:
+        return (result.length <= 1 ? result : result.toLowerCase());
+      default:
+        return result.toLowerCase();
+    }
+  }
 }

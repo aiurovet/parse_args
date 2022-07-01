@@ -4,129 +4,110 @@
 import 'package:parse_args/parse_args.dart';
 import 'package:test/test.dart';
 
-/// A list of options to write result to
-///
-Map<String, List> opts = {};
-
 /// The main entry point for tests
 ///
 void main() {
   group('parseArgs -', () {
     test('empty', () {
-      opts.clear();
-      parseArgs('', [], onParse);
-      expect(opts.length, 0);
+      final result = printResult(parseArgs(
+        '',
+        [],
+      ));
+      expect(result.strings.length, 0);
     });
     test('start with plain args', () {
-      opts.clear();
-      parseArgs('h|::', ['a', 'bc', '-h'], onParse);
-      expect(opts, {
+      final result = printResult(parseArgs('h|::', ['a', 'bc', '-h']));
+      expect(result.strings, {
         'h': [],
         '': ['a', 'bc']
       });
     });
     test('start with a sub-option of plain args', () {
-      opts.clear();
-      parseArgs('h|::>not', ['--not', 'a', 'bc', '-h'], onParse);
-      expect(opts, {
+      final result =
+          printResult(parseArgs('h|::>not', ['--not', 'a', 'bc', '-h']));
+      expect(result.strings, {
         'h': [],
         '': ['-not', 'a', 'bc']
       });
     });
     test('similar options', () {
-      opts.clear();
-      parseArgs(
-          'verbose|appconfig',
-          [
-            '-appconfig',
-            '--appconfig',
-            '-app-config',
-            '--app-config',
-            '-AppConfig'
-          ],
-          onParse);
-      expect(opts, {'appconfig': []});
+      final result = printResult(parseArgs('verbose|appconfig', [
+        '-appconfig',
+        '--appconfig',
+        '-app-config',
+        '--app-config',
+        '-AppConfig'
+      ]));
+      expect(result.strings, {'appconfig': []});
     });
     test('multiple names', () {
-      opts.clear();
-      parseArgs('a|b:|e,exp,expect:|f', ['-e', '1'], onParse);
-      expect(opts, {
+      final result =
+          printResult(parseArgs('a|b:|e,exp,expect:|f', ['-e', '1']));
+      expect(result.strings, {
         'expect': ['1']
       });
     });
     test('plain args after a flag option', () {
-      opts.clear();
-      parseArgs('a|::', ['-a', '1', '2'], onParse);
-      expect(opts, {
+      final result = printResult(parseArgs('a|::', ['-a', '1', '2']));
+      expect(result.strings, {
         'a': [],
         '': ['1', '2']
       });
     });
     test('plain args after an option with a single value', () {
-      opts.clear();
-      parseArgs('a:|::', ['-a', 'x', '1', '2'], onParse);
-      expect(opts, {
+      final result = printResult(parseArgs('a:|::', ['-a', 'x', '1', '2']));
+      expect(result.strings, {
         'a': ['x'],
         '': ['1', '2']
       });
     });
     test('plain args after an option with multiple values', () {
-      opts.clear();
-      parseArgs('a::|::', ['-a', 'x,y,z', '1', '2'], onParse,
-          valueSeparator: ',');
-      expect(opts, {
+      final result = printResult(
+          parseArgs('a::|::', ['-a', 'x,y,z', '1', '2'], valueSeparator: ','));
+      expect(result.strings, {
         'a': ['x', 'y', 'z'],
         '': ['1', '2']
       });
     });
-    test('plain args after an option with multiple glued values', () {
-      opts.clear();
-      parseArgs('a::|::', ['-a=1', '2'], onParse);
-      expect(opts, {
+    test('plain args after an option with glued values', () {
+      final result = printResult(parseArgs('a::|::', ['-a=1', '2']));
+      expect(result.strings, {
         'a': ['1'],
         '': ['2']
       });
     });
     test('opt name: noMore', () {
-      opts.clear();
-      parseArgs(
-          'opt1:|opt2::',
-          ['-opt1', 'v11', '--opt2', 'v21', '-', 'v22', '---', '-v23'],
-          onParse);
-      expect(opts, {
+      final result = printResult(parseArgs('opt1:|opt2::',
+          ['-opt1', 'v11', '--opt2', 'v21', '-', 'v22', '---', '-v23']));
+      expect(result.strings, {
         'opt1': ['v11'],
         'opt2': ['v21', '-', 'v22', '-v23']
       });
     });
     test('opt name: stop', () {
-      opts.clear();
-      parseArgs('opt1:|opt2::|::',
-          ['-opt1', 'v11', '--opt2', 'v21', '-', 'v22', '--', '-v23'], onParse);
-      expect(opts, {
+      final result = printResult(parseArgs('opt1:|opt2::|::',
+          ['-opt1', 'v11', '--opt2', 'v21', '-', 'v22', '--', '-v23']));
+      expect(result.strings, {
         'opt1': ['v11'],
         'opt2': ['v21', '-', 'v22'],
         '': ['-v23']
       });
     });
     test('numeric values', () {
-      opts.clear();
-      parseArgs(
-          'bit:b|dec::i|hex:x|oct:o|num:f',
-          [
-            '-bit',
-            '101',
-            '-dec',
-            '7',
-            '89',
-            '-hex',
-            'AF',
-            '-oct',
-            '755',
-            '-num',
-            '1.23'
-          ],
-          onParse);
-      expect(opts, {
+      final result = printResult(parseArgs('bit:b|dec::i|hex:x|oct:o|num:f', [
+        '-bit',
+        '101',
+        '-dec',
+        '7',
+        '89',
+        '-hex',
+        'AF',
+        '-oct',
+        '755',
+        '-num',
+        '1.23'
+      ]));
+      expect(result.strings, {
         'bit': [5],
         'dec': [7, 89],
         'hex': [175],
@@ -135,59 +116,62 @@ void main() {
       });
     });
     test('primary and secondary', () {
-      opts.clear();
-      parseArgs('?,h,help|q,quiet|v,verbose|f,force|o,out:|i,inp::',
-          ['-f', '-o', 'o1', '-i', 'i1', 'i2', '-q', '-v', '-h'], onParse);
+      final result = printResult(parseArgs(
+          '?,h,help|q,quiet|v,verbose|f,force|o,out:|i,inp::',
+          ['-f', '-o', 'o1', '-i', 'i1', 'i2', '-q', '-v', '-h']));
+      expect(result.strings, {
+        '-f': [],
+        '-o': ['o1'],
+        '-i': ['i1', 'i2'],
+        '-q': [],
+        '-v': [],
+        '-h': [],
+      });
     });
     test('value separator', () {
-      opts.clear();
-      parseArgs(
+      final result = printResult(parseArgs(
           'a::i|b',
           [
             '-a',
             '1,2,3',
             '-b',
           ],
-          onParse,
-          valueSeparator: ',');
-      expect(opts, {
+          valueSeparator: ','));
+      expect(result.values, {
         'a': [1, 2, 3],
         'b': []
       });
     });
     test('name/value separator', () {
-      opts.clear();
-      parseArgs('a::i|b:', ['-a="1,2,3"', r'-b="\n"'], onParse,
-          valueSeparator: ',');
-      expect(opts, {
+      final result = printResult(parseArgs(
+          'a::i|b:', ['-a="1,2,3"', r'-b="\n"'],
+          valueSeparator: ','));
+      expect(result.values, {
         'a': [1, 2, 3],
         'b': [r'\n']
       });
     });
     test('multiple lists of values for the same option', () {
-      opts.clear();
-      parseArgs('a::i|b|c:i|::',
-          ['-a', '1,2', '-b', '-c', '3', '-a', '4', '5,6'], onParse,
-          valueSeparator: ',');
-      expect(opts, {
+      final result = printResult(parseArgs(
+          'a::i|b|c:i|::', ['-a', '1,2', '-b', '-c', '3', '-a', '4', '5,6'],
+          valueSeparator: ','));
+      expect(result.values, {
         'a': [1, 2, 4, 5, 6],
         'b': [],
         'c': [3]
       });
     });
     test('valid sub-options of an option', () {
-      opts.clear();
-      parseArgs('a::i>and,or|b::',
-          ['-a', '1', '-or', '2', '-or', '3', '-b="B,c"'], onParse,
-          valueSeparator: ',');
-      expect(opts, {
+      final result = printResult(parseArgs(
+          'a::i>and,or|b::', ['-a', '1', '-or', '2', '-or', '3', '-b="B,c"'],
+          valueSeparator: ','));
+      expect(result.values, {
         'a': [1, '-or', 2, '-or', 3],
         'b': ['B', 'c']
       });
     });
     test('valid sub-options of plain arguments', () {
-      opts.clear();
-      parseArgs(
+      final result = printResult(parseArgs(
           'a::i|b::|::>and,or',
           [
             '-a',
@@ -203,45 +187,40 @@ void main() {
             '-or',
             'z'
           ],
-          onParse,
-          valueSeparator: ',');
-      expect(opts, {
+          valueSeparator: ','));
+      expect(result.values, {
         'a': [1, 2, 3],
         'b': ['B', 'c'],
         '': ['x', '-and', '-not', 'y', '-or', 'z']
       });
     });
     test('undefined option exception', () {
-      opts.clear();
-      expect(() => parseArgs('a|b', ['-x'], onParse),
+      expect(() => printResult(parseArgs('a|b', ['-x'])),
           throwsA((e) => e is OptNameException));
     });
     test('option value missing exception', () {
-      opts.clear();
-      expect(() => parseArgs('a|b:', ['-b'], onParse),
+      expect(() => printResult(parseArgs('a|b:', ['-b'])),
           throwsA((e) => e is OptValueMissingException));
     });
     test('plain arg not supported exception', () {
-      opts.clear();
-      expect(() => parseArgs('a|b:', ['-b', '1', '2'], onParse),
+      expect(() => printResult(parseArgs('a|b:', ['-b', '1', '2'])),
           throwsA((e) => e is OptPlainArgException));
     });
     test('unexpected option value (for the flag) exception', () {
-      opts.clear();
-      expect(() => parseArgs('a|b', ['-a=1', '-b'], onParse),
+      expect(() => printResult(parseArgs('a|b', ['-a=1', '-b'])),
           throwsA((e) => e is OptValueUnexpectedException));
     });
     test('sub-option before first option exception', () {
-      opts.clear();
-      expect(() => parseArgs('a:i|b>and,or', ['-and', '-a', '1'], onParse),
-          throwsA((e) => e is SubOptOrphanException));
+      expect(
+          () => printResult(parseArgs('a:i|b>and,or|::', ['-and', '-a', '1'])),
+          throwsA((e) => e is SubOptMismatchException));
     });
   });
 }
 
 /// Parsed options handler: just prints whatever is passed
 ///
-void onParse(bool isFirstRun, String name, List values) {
-  opts[name] = values;
-  print('"$name": $values');
+ParseArgsResult printResult(ParseArgsResult result) {
+  print(result.strings);
+  return result;
 }

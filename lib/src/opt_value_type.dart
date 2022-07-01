@@ -18,6 +18,10 @@ enum OptValueType {
   ///
   dec,
 
+  /// Glob pattern
+  ///
+  glob,
+
   /// Hexadecimal int (radix= 16)
   ///
   hex,
@@ -29,6 +33,10 @@ enum OptValueType {
   /// Octal in (radix = 10)
   ///
   oct,
+
+  /// Regular expression pattern
+  ///
+  regExp,
 
   /// String
   ///

@@ -1,3 +1,9 @@
+## 0.8.0
+
+- Added optional smart bundling (default) - ability to combine short option names
+- Breaking: short options are case-sensitive (default), but the long ones are always not
+- Moved OptDef's normalize to OptName
+
 ## 0.7.1
 
 - A bugfix for a sub-option of a plain argument

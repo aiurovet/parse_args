@@ -22,10 +22,10 @@
         "plain",
         "argument",
         "-appconfig", "appsettings.json",
-        "-filter", "abc", "-and", "-nocase", "de", "-or", "-n", "fghi",
+        "-filter", "ab*c", "-and", "-nocase", "d?e", "-or", "-n", "fghi",
         "-o", "out.txt",
         "-i", "inp1.txt", "inp2.txt",
-        "-p", "1",
+        "-p", "3",
         "-d", "top-dir/sub-dir",
         "-v",
       ]

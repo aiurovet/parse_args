@@ -23,10 +23,10 @@ class OptException implements Exception {
   /// Exception's constructor: mandatory option [name] and the list of values if relevant
   ///
   OptException([this.name = '', this.values]) {
-    if (name.isNotEmpty) {
-      details = '"$name": ';
-    }
+    details = '"$name"';
+
     if (values?.isNotEmpty ?? false) {
+      details += ': ';
       details += values.toString();
     }
   }
@@ -35,6 +35,20 @@ class OptException implements Exception {
   ///
   @override
   String toString() => details.isEmpty ? description : '$description $details';
+}
+
+/// When encountered a long option name consisting of some short option
+/// names only (might happen only if smart bundling is turned on)
+///
+class OptBadLongNameException extends OptException {
+  /// An implementation of the explanation
+  ///
+  @override
+  String get description => 'Bad long name option';
+
+  /// Specific constructor
+  ///
+  OptBadLongNameException(super.optName);
 }
 
 /// When encountered an unrecognised option
