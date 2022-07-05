@@ -96,25 +96,25 @@ class Options {
       usage();
     }
 
-    _logger.level = result.isSet('quiet')
-        ? Logger.levelQuiet
-        : result.isSet('verbose')
-            ? Logger.levelVerbose
-            : _logger.level;
+    if (result.isSet('quiet')) {
+      _logger.level = Logger.levelQuiet;
+    } else if (result.isSet('verbose')) {
+      _logger.level = Logger.levelVerbose;
+    }
 
-    _logger.verbose('Parsed ${result.strings}');
+    _logger.verbose('Parsed ${result.toString()}');
 
     _appConfigPath =
-        _fs.path.join(_startDirName, result.getString('appconfig'));
-    _compression = result.getValue('compression', 6);
+        _fs.path.join(_startDirName, result.getStrValue('appconfig'));
+    _compression = result.getIntValue('compression') ?? 6;
     _isForced = result.isSet('force');
-    _plainArgs = result.getStrings('');
+    _plainArgs = result.getStrValues('') ?? [];
 
-    setFilters(result.getValues('filter'));
+    setFilters(result.getStrValues('filter', isRequired: true)!);
 
-    await setStartDirName(result.getString('dir'));
-    await setPaths(_inputFiles, true, result.getStrings('inpfiles'));
-    await setPaths(_outputFiles, false, result.getStrings('outfiles'));
+    await setStartDirName(result.getStrValue('dir') ?? '');
+    await setPaths(_inputFiles, true, result.getStrValues('inpfiles', isRequired: true)!);
+    await setPaths(_outputFiles, false, result.getStrValues('outfiles') ?? []);
 
     _logger.out('''
 AppCfgPath: "$_appConfigPath"

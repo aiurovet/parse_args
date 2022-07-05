@@ -4,71 +4,83 @@
 import 'package:parse_args/parse_args.dart';
 import 'package:parse_args/src/str_ext.dart';
 
+/// Custom value converter
+///
+typedef ValueConverter = dynamic Function(OptDef optDef, String value,
+    {dynamic param});
+
 /// Class to store all found options and their values both as
 /// dynamic values and strings
 ///
 class ParseArgsResult {
-  /// Allows to get the list of related option string values
+  /// Allows to get the list of related option values
   ///
-  final strings = <String, List<String>>{};
+  Map<OptDef, List<String>> get values => _values;
+  final _values = <OptDef, List<String>>{};
 
-  /// Allows to get the list of related option typed values
-  ///
-  final values = <String, List>{};
+  @override
+  String toString() {
+    final result = StringBuffer();
+
+    result.write('{');
+
+    for (final entry in _values.entries) {
+      if (result.length > 1) {
+        result.write(', ');
+      }
+      result.write('\'${entry.key.lastName}\': ${entry.value}');
+    }
+
+    result.write('}');
+
+    return result.toString();
+  }
 
   /// Get plain (valueless) option presence flag
   ///
   int addArg(
-      OptDef? optDef, String? string, bool isSubName, String valueSeparator,
+      OptDef? optDef, String? value, bool isSubName, String? valueSeparator,
       {bool isGlued = false}) {
     if (optDef == null) {
       throw OptPlainArgException();
     }
 
-    if (isGlued && (string != null)) {
-      string = string.unquote();
+    if (isGlued && (value != null)) {
+      value = value.unquote();
     }
 
-    final name = optDef.lastName;
     final newStrings = <String>[];
 
     switch (optDef.valueType) {
       case OptValueType.glob:
       case OptValueType.regExp:
-        if ((string != null) && string.isNotEmpty) {
-          newStrings.add(string);
+        if ((value != null) && value.isNotEmpty) {
+          newStrings.add(value);
         }
         break;
       default:
-        if ((string != null) && string.isNotEmpty) {
-          if (valueSeparator.isEmpty) {
-            newStrings.add(string);
+        if ((value != null) && value.isNotEmpty) {
+          if (valueSeparator == null) {
+            newStrings.add(value);
           } else {
-            newStrings.addAll(string.split(valueSeparator));
+            newStrings.addAll(value.split(valueSeparator));
           }
         }
         break;
     }
 
-    final isNewName = !strings.containsKey(name);
+    final isNewOpt = !_values.containsKey(optDef);
     final valueCount = newStrings.length;
 
     if (valueCount <= 0) {
-      if (isNewName) {
-        strings[name] = [];
-        values[name] = [];
+      if (isNewOpt) {
+        _values[optDef] = [];
       }
     } else {
-      final newValues = List.from(isSubName
-          ? [newStrings[0]]
-          : newStrings.map((x) => optDef.toTypedValue(name, x)));
-
-      if (isNewName) {
-        strings[name] = newStrings;
-        values[name] = newValues.toList();
+      if (isNewOpt) {
+        _values[optDef] = newStrings;
       } else {
-        strings[name]!.addAll(newStrings);
-        values[name]!.addAll(newValues);
+        _values[optDef]!.addAll(newStrings);
       }
     }
 
@@ -80,28 +92,128 @@ class ParseArgsResult {
       return optDef.maxValueCount;
     }
 
-    return strings[name]?.length ?? 0;
+    return _values[optDef]?.length ?? 0;
+  }
+
+  /// Find the key (option definition)
+  ///
+  OptDef? findByName(String name) {
+    for (final key in _values.keys) {
+      if (key.names.contains(name)) {
+        return key;
+      }
+    }
+    return null;
+  }
+
+  /// Get the first or default value of an array
+  ///
+  dynamic firstOrNull(List? values) =>
+      ((values == null) || values.isEmpty ? null : values.first);
+
+  /// Get the first integer value related to an option
+  /// (use custom converter if sub-options expected)
+  ///
+  int? getIntValue(String name, {bool isRequired = false}) =>
+      firstOrNull(getValues(name, isRequired: isRequired, isFirstOnly: true, converter: toIntValues))
+          as int?;
+
+  /// Get all integer values related to an option
+  /// (use custom converter if sub-options expected)
+  ///
+  List<int>? getIntValues(String name, {bool isRequired = false, bool isFirstOnly = false}) =>
+      getValues(name, isRequired: isRequired, isFirstOnly: isFirstOnly, converter: toIntValues)
+          as List<int>;
+
+  /// Get the first numeric value related to an option
+  /// (use custom converter if sub-options expected)
+  ///
+  num? getNumValue(String name, {bool isRequired = false}) =>
+      firstOrNull(getValues(name, isRequired: isRequired, isFirstOnly: true, converter: toNumValues))
+          as num?;
+
+  /// Get all numeric values related to an option
+  /// (use custom converter if sub-options expected)
+  ///
+  List<num>? getNumValues(String name, {bool isRequired = false, bool isFirstOnly = false}) =>
+      getValues(name, isRequired: isRequired, isFirstOnly: isFirstOnly, converter: toNumValues)
+          as List<num>?;
+
+  /// Get the first numeric value related to an option
+  ///
+  String? getStrValue(String name, {bool isRequired = false}) =>
+      firstOrNull(getValues(name, isRequired: isRequired, isFirstOnly: true)) as String?;
+
+  /// Get all numeric values related to an option
+  ///
+  List<String>? getStrValues(String name, {bool isRequired = false, bool isFirstOnly = false}) =>
+      getValues(name, isRequired: isRequired, isFirstOnly: isFirstOnly) as List<String>?;
+
+  /// Get the first value related to an option
+  /// (use custom converter for non-string values when sub-options expected)
+  ///
+  dynamic getValue(String name, {bool isRequired = false, ValueConverter? converter, dynamic param}) =>
+      firstOrNull(getValues(name, isRequired: isRequired, isFirstOnly: true, converter: converter));
+
+  /// Get all values (including sub-option names) related to an option
+  /// (use custom converter for non-string values when sub-options expected)
+  ///
+  List? getValues(String name,
+      {bool isRequired = false, bool isFirstOnly = false, ValueConverter? converter, dynamic param}) {
+    final optDef = findByName(name);
+
+    if (optDef == null) {
+      if (isRequired) {
+        throw OptNameException(name);
+      }
+      return null;
+    }
+
+    var selected = _values[optDef]!;
+
+    if (isRequired && selected.isEmpty) {
+      throw OptValueMissingException(optDef.lastName);
+    }
+
+    if (isFirstOnly) {
+      selected = (selected.length <= 1 ? selected : [selected.first]);
+    }
+
+    if (converter == null) {
+      return selected;
+    }
+
+    final result = [];
+
+    for (final value in selected) {
+      result.add(converter(optDef, value, param: param));
+    }
+
+    return result;
   }
 
   /// Get plain (valueless) option presence flag
   ///
-  bool isSet(String name) => strings.containsKey(name);
+  bool isSet(String name) => (findByName(name) != null);
 
-  /// Get the first value related to an option (all checks passed beforehand)
+  /// Get the number of options if [name] is null or the number of values for option [name]
   ///
-  String getString(String name, [String defValue = '']) =>
-      strings[name]?.first ?? defValue;
+  int? length([String? name]) {
+    if (name == null) {
+      return _values.length;
+    }
 
-  /// Get all values related to an option, including sub-options (all checks passed beforehand)
-  ///
-  List<String> getStrings(String name) => strings[name] ?? [];
+    final optDef = findByName(name);
+    return (optDef == null ? null : _values[optDef]?.length);
+  }
 
-  /// Get the first value as string related to an option (all checks passed beforehand)
+  /// Converter: to integer values
   ///
-  dynamic getValue(String name, dynamic defValue) =>
-      values[name]?.first ?? defValue;
+  static dynamic toIntValues(OptDef optDef, String string, {dynamic param}) =>
+      int.parse(string, radix: ((param as int?) ?? 10));
 
-  /// Get all values as strings related to an option, including sub-options (all checks passed beforehand)
+  /// Converter: to numeric values
   ///
-  List getValues(String name) => values[name] ?? [];
+  static dynamic toNumValues(OptDef optDef, String string, {dynamic param}) =>
+      num.parse(string);
 }

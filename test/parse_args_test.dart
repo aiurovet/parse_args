@@ -13,11 +13,11 @@ void main() {
         '',
         [],
       ));
-      expect(result.strings.length, 0);
+      expect(result.values.length, 0);
     });
     test('start with plain args', () {
       final result = printResult(parseArgs('h|::', ['a', 'bc', '-h']));
-      expect(result.strings, {
+      expect(result.values, {
         'h': [],
         '': ['a', 'bc']
       });
@@ -25,7 +25,7 @@ void main() {
     test('start with a sub-option of plain args', () {
       final result =
           printResult(parseArgs('h|::>not', ['--not', 'a', 'bc', '-h']));
-      expect(result.strings, {
+      expect(result.values, {
         'h': [],
         '': ['-not', 'a', 'bc']
       });
@@ -38,25 +38,25 @@ void main() {
         '--app-config',
         '-AppConfig'
       ]));
-      expect(result.strings, {'appconfig': []});
+      expect(result.values, {'appconfig': []});
     });
     test('multiple names', () {
       final result =
           printResult(parseArgs('a|b:|e,exp,expect:|f', ['-e', '1']));
-      expect(result.strings, {
+      expect(result.values, {
         'expect': ['1']
       });
     });
     test('plain args after a flag option', () {
       final result = printResult(parseArgs('a|::', ['-a', '1', '2']));
-      expect(result.strings, {
+      expect(result.values, {
         'a': [],
         '': ['1', '2']
       });
     });
     test('plain args after an option with a single value', () {
       final result = printResult(parseArgs('a:|::', ['-a', 'x', '1', '2']));
-      expect(result.strings, {
+      expect(result.values, {
         'a': ['x'],
         '': ['1', '2']
       });
@@ -64,14 +64,14 @@ void main() {
     test('plain args after an option with multiple values', () {
       final result = printResult(
           parseArgs('a::|::', ['-a', 'x,y,z', '1', '2'], valueSeparator: ','));
-      expect(result.strings, {
+      expect(result.values, {
         'a': ['x', 'y', 'z'],
         '': ['1', '2']
       });
     });
     test('plain args after an option with glued values', () {
       final result = printResult(parseArgs('a::|::', ['-a=1', '2']));
-      expect(result.strings, {
+      expect(result.values, {
         'a': ['1'],
         '': ['2']
       });
@@ -79,7 +79,7 @@ void main() {
     test('opt name: noMore', () {
       final result = printResult(parseArgs('opt1:|opt2::',
           ['-opt1', 'v11', '--opt2', 'v21', '-', 'v22', '---', '-v23']));
-      expect(result.strings, {
+      expect(result.values, {
         'opt1': ['v11'],
         'opt2': ['v21', '-', 'v22', '-v23']
       });
@@ -87,7 +87,7 @@ void main() {
     test('opt name: stop', () {
       final result = printResult(parseArgs('opt1:|opt2::|::',
           ['-opt1', 'v11', '--opt2', 'v21', '-', 'v22', '--', '-v23']));
-      expect(result.strings, {
+      expect(result.values, {
         'opt1': ['v11'],
         'opt2': ['v21', '-', 'v22'],
         '': ['-v23']
@@ -107,7 +107,7 @@ void main() {
         '-num',
         '1.23'
       ]));
-      expect(result.strings, {
+      expect(result.values, {
         'bit': [5],
         'dec': [7, 89],
         'hex': [175],
@@ -119,7 +119,7 @@ void main() {
       final result = printResult(parseArgs(
           '?,h,help|q,quiet|v,verbose|f,force|o,out:|i,inp::',
           ['-f', '-o', 'o1', '-i', 'i1', 'i2', '-q', '-v', '-h']));
-      expect(result.strings, {
+      expect(result.values, {
         '-f': [],
         '-o': ['o1'],
         '-i': ['i1', 'i2'],
@@ -221,6 +221,6 @@ void main() {
 /// Parsed options handler: just prints whatever is passed
 ///
 ParseArgsResult printResult(ParseArgsResult result) {
-  print(result.strings);
+  print(result.values);
   return result;
 }

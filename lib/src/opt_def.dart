@@ -15,6 +15,10 @@ class OptDef {
 
   /// Constant separator for different names of a single option
   ///
+  static const maxMaxValueCount = 9999999999;
+
+  /// Constant separator for different names of a single option
+  ///
   static const nameSeparator = ',';
 
   /// Followed by a list of sub-option names
@@ -42,6 +46,14 @@ class OptDef {
   ///
   get lastName => (names.isEmpty ? '' : names[names.length - 1]);
 
+  /// Expected maximum number of values
+  ///
+  late final int maxValueCount;
+
+  /// Expected minimum number of values
+  ///
+  late final int minValueCount;
+
   /// Radix for integer values
   ///
   late final int? radix;
@@ -54,14 +66,6 @@ class OptDef {
   /// List of sub-option names (wil be treated as special values)
   ///
   final List<String> subNames = [];
-
-  /// Expected maximum number of values
-  ///
-  late final int maxValueCount;
-
-  /// Expected minimum number of values
-  ///
-  late final int minValueCount;
 
   /// Expected type of values
   ///
@@ -131,7 +135,7 @@ class OptDef {
     } else {
       if ((valuePos > 0) && (optDefStrNorm[valuePos - 1] == valueMarker)) {
         minValueCount = 1;
-        maxValueCount = 9999999999;
+        maxValueCount = maxMaxValueCount;
       } else {
         minValueCount = 1;
         maxValueCount = 1;

@@ -28,7 +28,7 @@ class OptParser {
 
   /// How to break any option value into a list of values (if not empty)
   ///
-  final String valueSeparator;
+  final String? valueSeparator;
 
   /// Option definition for plain args (name is empty)
   ///
@@ -47,7 +47,7 @@ class OptParser {
   OptParser(
       {this.isBundlingEnabled = true,
       this.caseMode = OptNameCaseMode.smart,
-      this.valueSeparator = ''});
+      this.valueSeparator});
 
   /// Engine
   ///
@@ -115,10 +115,10 @@ class OptParser {
     }
 
     for (final optDef in _optDefs) {
-      final values = result.strings[optDef.lastName];
+      final length = result.length(optDef.lastName);
 
-      if (values != null) {
-        optDef.validateValueCount(values.length);
+      if (length != null) {
+        optDef.validateValueCount(length);
       }
     }
 
@@ -149,7 +149,7 @@ class OptParser {
       return 0;
     }
 
-    return result.strings[_curOptDef!.lastName]?.length ?? 0;
+    return result.length(_curOptDef!.names[0]) ?? 0;
   }
 
   /// Split argument into an option name and value
