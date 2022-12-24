@@ -3,9 +3,6 @@
 
 import 'package:glob/glob.dart';
 import 'package:parse_args/parse_args.dart';
-import 'package:parse_args/src/reg_exp_opt.dart';
-
-import 'glob_opt.dart';
 
 /// Single value custom converter
 ///
