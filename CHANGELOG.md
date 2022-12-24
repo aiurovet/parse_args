@@ -1,3 +1,7 @@
+## 0.9.0
+
+- Complete overhaul (an utterly breaking change): allowing short options bundling and negative options, different case modes, getting values directly (no callbacks), allowing sub-options (treated as plain arguments only, no sub-option values), value separator is built into the option definitions string. Value type was removed from the option definintion, no plus sign in the beginning of the options definition string: no need to perform multiple passes at all.
+
 ## 0.8.0
 
 - Added optional smart bundling (default) - ability to combine short option names

@@ -3,23 +3,23 @@
 
 /// The way to compare and find option and sub-option names
 ///
-enum OptNameCaseMode {
-  /// Case-sensitive for any name
+enum CliOptCaseMode {
+  /// Do not convert any case and perform exct match
   ///
-  force,
+  exact,
 
-  /// Case-insensitive for any name
+  /// Convert any name to lower case (default)
   ///
-  ignore,
+  lower,
 
-  /// Case-sensitive short names and case-insensitive long ones (default)
+  /// Convert long names to lower case and keep the short ones intact
   ///
   smart,
 }
 
 /// The way to stop treating arguments as option names
 ///
-enum OptNameStopMode {
+enum CliOptStopMode {
   /// No stop yet (initializer)
   ///
   none,
@@ -27,10 +27,10 @@ enum OptNameStopMode {
   /// Stop testing arguments on representing option names, but
   /// keep the last option active (the following arguments are its values)
   ///
-  stop,
+  last,
 
   /// Stop testing arguments on representing option names and
   /// drop the last active option name (the following arguments are plain)
   ///
-  stopAndDrop
+  stop,
 }

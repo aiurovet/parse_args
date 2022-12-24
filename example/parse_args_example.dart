@@ -37,6 +37,11 @@ class Options {
   ///
   static const appVersion = '0.1.2';
 
+  /// Access (octal)
+  ///
+  int get access => _access;
+  var _access = 0;
+
   /// Application configuration path
   ///
   String get appConfigPath => _appConfigPath;
@@ -80,17 +85,17 @@ class Options {
   /// Sample application's command-line parser
   ///
   Future parse(List<String> args) async {
-    final ops = 'a,and, n,--not, o,  o-r ';
+    final ops = 'and,not,or,case';
 
     final optDefStr = '''
-|q,quiet|v,verbose|?,h,help|d,dir:|c,app-config:|f,force|p,compression:i
-|l,filter::g  > $ops
-|i,inp,inp-files::
-|o,out,out-files::
+|q,quiet|v,verbose|?,h,help|access:,:|d,dir:|app-config:|f,force|p,compression:
+|l,filter::>$ops
+|i,inp,inp-files:,:
+|o,out,out-files:,:
 |::>$ops
 ''';
 
-    final result = parseArgs(optDefStr, args);
+    final result = parseArgs(optDefStr, args, validate: true);
 
     if (result.isSet('help')) {
       usage();
@@ -102,26 +107,38 @@ class Options {
       _logger.level = Logger.levelVerbose;
     }
 
-    _logger.verbose('Parsed ${result.toString()}');
+    _logger.out('Parsed ${result.toString()}\n');
 
     _appConfigPath =
         _fs.path.join(_startDirName, result.getStrValue('appconfig'));
+    _access = result.getIntValue('access', radix: 8) ?? 420 /* octal 644 */;
     _compression = result.getIntValue('compression') ?? 6;
     _isForced = result.isSet('force');
-    _plainArgs = result.getStrValues('') ?? [];
+    _plainArgs = result.getStrValues('');
 
-    setFilters(result.getStrValues('filter', isRequired: true)!);
+    setFilters(result.getStrValues('filter'));
+
+    final optName = '-case';
+
+    switch (optName) {
+      case '-pattern':
+        break;
+      case '-case':
+        break;
+      case '+case':
+        break;
+    }
 
     await setStartDirName(result.getStrValue('dir') ?? '');
-    await setPaths(_inputFiles, true, result.getStrValues('inpfiles', isRequired: true)!);
-    await setPaths(_outputFiles, false, result.getStrValues('outfiles') ?? []);
+    await setPaths(_inputFiles, result.getStrValues('inpfiles'));
+    await setPaths(_outputFiles, result.getStrValues('outfiles'));
 
     _logger.out('''
-AppCfgPath: "$_appConfigPath"
+AppCfgPath: $_appConfigPath
 Compress:   $_compression
 isForced:   $_isForced
 PlainArgs:  $_plainArgs
-StartDir:   "$_startDirName"
+StartDir:   $_startDirName
 Filters:    $_filterLists
 InpFiles:   $_inputFiles
 OutFiles:   $_outputFiles
@@ -133,23 +150,39 @@ OutFiles:   $_outputFiles
   void setFilters(List values) {
     var isNew = true;
     var isPositive = true;
+    var isCaseSensitive = true;
 
     for (var value in values) {
       switch (value) {
-        case '-a':
         case '-and':
           isNew = false;
+          isPositive = true;
           continue;
-        case '-n':
+        case '+and':
+          isNew = false;
+          isPositive = false;
+          continue;
         case '-not':
           isPositive = false;
           continue;
-        case '-o':
         case '-or':
           isNew = true;
+          isPositive = true;
+          continue;
+        case '+or':
+          isNew = true;
+          isPositive = false;
+          continue;
+        case '-case':
+          isCaseSensitive = true;
+          continue;
+        case '+case':
+          isCaseSensitive = false;
           continue;
         default:
-          final filter = Filter(value, isPositive);
+          final glob = Glob(value, caseSensitive: isCaseSensitive);
+          final filter = Filter(glob, isPositive);
+
           if (isNew || _filterLists.isEmpty) {
             _filterLists.add([filter]);
           } else {
@@ -160,25 +193,25 @@ OutFiles:   $_outputFiles
     }
   }
 
-  /// General-purpose method to add file paths to destinaltion list
+  /// General-purpose method to add file paths to destinaltion list and check the existence immediately
   ///
-  Future setPaths(List<String> to, bool forceExists, List from) async {
+  Future setPaths(List<String> to, List from, {bool isRequired = false}) async {
     for (var x in from) {
       final path = _fs.path.isAbsolute(x) ? x : _fs.path.join(_startDirName, x);
       to.add(path);
 
-      if (forceExists && !(await _fs.file(path).exists())) {
+      if (isRequired && !(await _fs.file(path).exists())) {
         _logger.error('*** ERROR: Input file not found: "$path"');
       }
     }
   }
 
-  /// General-purpose method to add file paths to destinaltion list
+  /// General-purpose method to set start directory and check its existence immediately
   ///
-  Future setStartDirName(String value) async {
+  Future setStartDirName(String value, {bool isRequired = false}) async {
     _startDirName = value;
 
-    if (!(await _fs.directory(_startDirName).exists())) {
+    if (isRequired && !(await _fs.directory(_startDirName).exists())) {
       _logger.error('*** ERROR: Invalid startup directory: "$_startDirName"');
     }
   }

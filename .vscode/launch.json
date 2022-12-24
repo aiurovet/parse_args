@@ -5,29 +5,33 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Help",
-      "program": "parse_args_example.dart",
-      "request": "launch",
-      "type": "dart",
-      "cwd": "example",
-      "args": [ "-?" ]
+      "name": "Help", "program": "parse_args_example.dart", "request": "launch", "type": "dart", "cwd": "example",
+      "args": [
+        "-?"
+      ]
     },
     {
-      "name": "Example",
-      "program": "parse_args_example.dart",
-      "request": "launch",
-      "type": "dart",
-      "cwd": "example",
+      "name": "Example - Args",
+      "program": "parse_args_example.dart", "request": "launch", "type": "dart", "cwd": "example",
       "args": [
-        "plain",
-        "argument",
-        "-appconfig", "appsettings.json",
-        "-filter", "ab*c", "-and", "-nocase", "d?e", "-or", "-n", "fghi",
-        "-o", "out.txt",
-        "-i", "inp1.txt", "inp2.txt",
-        "-p", "3",
-        "-d", "top-dir/sub-dir",
-        "-v",
+        "plain", "argument", "-appconfig", "appsettings.json",
+        "-filter", "ab*c", "-and", "-nocase", "d?e", "-or", "-not", "fghi",
+        "-o", "out.txt", "-i", "inp1.txt", "inp2.txt",
+        "-p", "3", "-d", "top-dir/sub-dir", "-v",
+      ]
+    },
+    {
+      "name": "Example - Sub-Command Language",
+      "program": "parse_sub_cmd_example.dart", "request": "launch", "type": "dart", "cwd": "example",
+      "args": [
+        "language", "-d", "-dir", "src",
+      ]
+    },
+    {
+      "name": "Example - Sub-Command Publish",
+      "program": "parse_sub_cmd_example.dart", "request": "launch", "type": "dart", "cwd": "example",
+      "args": [
+        "publish", "-A", "-g",
       ]
     }
   ]
