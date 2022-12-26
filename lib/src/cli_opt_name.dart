@@ -97,6 +97,8 @@ extension CliOptName on String {
     return [substring(0, breakPos), substring(breakPos + 1)];
   }
 
+  /// Prepends option name with prefix depending on [isPositive]
+  ///
   String toFullCliOptName(bool isPositive) {
     switch (this[0]) {
       case '-':

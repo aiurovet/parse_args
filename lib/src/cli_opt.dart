@@ -69,6 +69,8 @@ class CliOpt {
     }
   }
 
+  /// Standard serializer
+  ///
   @override
   String toString() {
     return '"$fullName": $values';

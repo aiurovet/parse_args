@@ -14,6 +14,7 @@ export 'src/cli_opt_name.dart';
 export 'src/cli_opt_parser.dart';
 export 'src/cli_opt.dart';
 export 'src/cli_sub_cmd_parser.dart';
+export 'src/glob_ext.dart';
 export 'src/glob_opt.dart';
 export 'src/list_ext.dart';
 export 'src/parse_args_func.dart';

@@ -1,15 +1,16 @@
 // Copyright (c) 2022, Alexander Iurovetski
 // All rights reserved under MIT license (see LICENSE file)
 
+import 'package:file/local.dart';
 import 'package:glob/glob.dart';
 import 'package:parse_args/parse_args.dart';
-import 'package:parse_args/src/glob_opt.dart';
-import 'package:parse_args/src/reg_exp_opt.dart';
 import 'package:test/test.dart';
 
 /// The main entry point for tests
 ///
 void main() {
+  var fs = LocalFileSystem();
+
   group('CliOptList -', () {
     test('isSet', () {
       final result = parseArgs('n,name', [
@@ -133,7 +134,7 @@ void main() {
         '*.dart',
       ]);
       final r1 = result.getGlobValue('file',
-          options: GlobOpt(caseSensitive: false, recursive: true));
+          options: GlobOpt(fs, caseSensitive: false, recursive: true));
       final r2 = Glob('*.dart', caseSensitive: false, recursive: true);
       expect(r1 is Glob, true);
       expect([r1?.pattern, r1?.caseSensitive, r1?.recursive],

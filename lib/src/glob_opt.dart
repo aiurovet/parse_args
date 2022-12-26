@@ -2,24 +2,15 @@
 // All rights reserved under MIT license (see LICENSE file)
 
 import 'package:file/file.dart';
-import 'package:file/local.dart';
 
 /// Helper class to accumulate Glob options then to pass
 /// those as a user-defined parameter (a single object)
 /// to the method like `CliOptList.toGlobValue(...)`
 ///
 class GlobOpt {
-  /// Default file system (singleton)
+  /// A pattern to list any file system element
   ///
-  static final LocalFileSystem localFileSystem = LocalFileSystem();
-
-  /// POSIX-compatible path element separator
-  ///
-  static const String pathSeparatorPosix = r'/';
-
-  /// Windows path element separator
-  ///
-  static const String pathSeparatorWindows = r'\';
+  static const anyPattern = r'*';
 
   /// Option indicating case-sensitive search
   ///
@@ -32,17 +23,25 @@ class GlobOpt {
   /// FileSystem object to link to the glob and touse for
   /// the default case sensitivity
   ///
-  late final FileSystem fileSystem;
+  final FileSystem fileSystem;
 
-  /// Determine file system style
+  // PRIVATE AREA
+
+  /// A pattern to locate a combination of glob characters which means recursive directory scan
   ///
-  bool isPosix() => (fileSystem.path.separator == pathSeparatorPosix);
+  static final _isRecursiveGlobPatternRegex =
+      RegExp(r'\*\*|[\*\?][\/\\]', caseSensitive: false);
+
+  // METHODS
 
   /// Default constructor
   ///
-  GlobOpt(
-      {FileSystem? fileSystem, bool? caseSensitive, this.recursive = false}) {
-    this.fileSystem = (fileSystem ?? localFileSystem);
-    this.caseSensitive = (caseSensitive ?? isPosix());
+  GlobOpt(this.fileSystem, {bool? caseSensitive, this.recursive = false}) {
+    this.caseSensitive = caseSensitive ?? !fileSystem.path.equals('A', 'a');
   }
+
+  /// Check whether [pattern] indicates recursive directory scan
+  ///
+  static bool isRecursivePattern(String? pattern) =>
+      (pattern != null) && _isRecursiveGlobPatternRegex.hasMatch(pattern);
 }

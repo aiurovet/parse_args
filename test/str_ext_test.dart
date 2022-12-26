@@ -4,10 +4,6 @@
 import 'package:parse_args/src/str_ext.dart';
 import 'package:test/test.dart';
 
-/// A list of options to write result to
-///
-Map<String, List> opts = {};
-
 /// The main entry point for tests
 ///
 void main() {

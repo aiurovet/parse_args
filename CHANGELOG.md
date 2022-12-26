@@ -1,6 +1,6 @@
 ## 0.9.2
 
-- Changed default CliOptCaseMode from lower to smart
+- Changed default CliOptCaseMode from lower to smart, added extra documentation and GlobExt extension for Glob
 
 ## 0.9.1
 
