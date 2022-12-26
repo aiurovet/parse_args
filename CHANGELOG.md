@@ -1,3 +1,7 @@
+## 0.9.2
+
+- Changed default CliOptCaseMode from lower to smart
+
 ## 0.9.1
 
 - Removed unused imports

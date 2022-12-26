@@ -9,6 +9,6 @@ import 'package:parse_args/parse_args.dart';
 /// isSet(...), getStrValues(...) etc.
 ///
 List<CliOpt> parseArgs(String optDefStr, List<String> args,
-        {CliOptCaseMode caseMode = CliOptCaseMode.lower,
+        {CliOptCaseMode caseMode = CliOptCaseMode.smart,
         bool validate = false}) =>
     CliOptParser(optDefStr, caseMode, validate: validate).exec(args);
