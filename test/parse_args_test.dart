@@ -196,6 +196,34 @@ void main() {
         0,
       ]);
     });
+    test('option name same as another option\'s sub-option name', () {
+      final map = printResult(parseArgs('''
+          |p,plain::>i,and,not,or,p,plain,r,regex
+          |r,regex::>i,and,not,or,p,plain,r,regex
+          ''', [
+        '-regex',
+        '^(a|b)',
+        '-or',
+        '-plain',
+        'a',
+        '-and',
+        '-not',
+        '-regex',
+        '[ab]'
+      ]));
+      expect(map, {
+        '-regex': [
+          '^(a|b)',
+          '-or',
+          '-plain',
+          'a',
+          '-and',
+          '-not',
+          '-regex',
+          '[ab]'
+        ]
+      });
+    });
     test('undefined option exception', () {
       expect(() => printResult(parseArgs('a|b', ['-x'])),
           throwsA((e) => e is CliOptUndefinedNameException));

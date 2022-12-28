@@ -1,3 +1,7 @@
+## 0.11.0
+
+- Breaking: sub-option-first policy. If option `-a` has a sub-option `-b`, and there is also another major option `-b`, in the following situation `-b` will be treated as a sub-option: `-a -b -c`. Still `-b` will be treated as a major option in `-b -a -c`. This allows mixing options with similar sub-options. For instance, `|p,plain::>and,not,or,p,plain,r,regex|r,regex::>and,not,or,p,plain,r,regex` allows mixing two kinds of patterns with logical operations
+
 ## 0.10.1
 
 - Bugfix: incorrect parsing of options definition string with spaces
@@ -8,7 +12,7 @@
 
 ## 0.9.4
 
-- Bugfix: '-?' was not recognised as a valid option name,
+- Bugfix: '-?' was not recognised as a valid option name
 - More docos
 
 ## 0.9.3

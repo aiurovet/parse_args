@@ -56,6 +56,8 @@ The array of values for the option `-filter` will be: `["-case", "Ab", "Cd", "+c
 
 - The function allows bundling for short (single-character) option names. There is a method `testNames` of `CliOptDef` and of `CliOptDefList` which can be called from unit tests to ensure all option and sub-option names are unique as well as no long option name can be treated as a combination of short options names.
 
+- Sub-option-first policy: if option `-a` has a sub-option `-b`, and there is also another major option `-b`, in the following situation `-b` will be treated as a sub-option: `-a -b -c`. Still `-b` will be treated as a major option in `-b -a -c`. This allows mixing options with similar sub-options. For instance, `|p,plain::>and,not,or,p,plain,r,regex|r,regex::>and,not,or,p,plain,r,regex` allows mixing two kinds of patterns with logical operations
+
 ## Usage
 
 The same can be found in the `example/parse_args_example.dart` (there is also another example on the use of sub-commands).
@@ -80,11 +82,20 @@ final _logger = Logger();
 /// Simple filtering class
 ///
 class Filter {
+  /// Flag indicating positive match
+  ///
   bool isPositive;
+
+  /// Glob pattern to match filenames against
+  ///
   Glob glob;
 
+  /// Default constructor
+  ///
   Filter(this.glob, this.isPositive);
 
+  /// Serializer
+  ///
   @override
   String toString() => '${isPositive ? glob : '!($glob)'}';
 }
@@ -151,12 +162,12 @@ class Options {
     final ops = 'and,not,or,case';
 
     final optDefStr = '''
-|q,quiet|v,verbose|?,h,help|access:,:|d,dir:|app-config:|f,force|p,compression:
-|l,filter::>$ops
-|i,inp,inp-files:,:
-|o,out,out-files:,:
-|::>$ops
-''';
+      |q,quiet|v,verbose|?,h,help|access:,:|d,dir:|app-config:|f,force|p,compression:
+      |l,filter::>$ops
+      |i,inp,inp-files:,:
+      |o,out,out-files:,:
+      |::>$ops
+    ''';
 
     final result = parseArgs(optDefStr, args, validate: true);
 

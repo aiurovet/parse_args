@@ -300,6 +300,28 @@ class CliOptParser {
     // Strip the option prefix and find the option definition
     //
     _curName = _curName.substring(1);
+
+    // Check whether this is a sub-option
+    //
+    if (_curOptDef != null) {
+      if (_curOptDef!.longSubNames.contains(_curName) ||
+          _curOptDef!.shortSubNames.contains(_curName)) {
+        _curIsSubOpt = true;
+      } else if (_curOptDef?.negLongSubNames.contains(_curName) ?? false) {
+        _curIsPositive = false;
+        _curIsSubOpt = true;
+      }
+    }
+
+    // Make sub-option name consumable by the caller
+    //
+    if (_curIsSubOpt) {
+      _curIsFound = true;
+      return;
+    }
+
+    // Find the option definition
+    //
     final newOptDef = optDefs.findCliOptDef(_curName);
     _curIsFound = (newOptDef != null);
 
@@ -314,37 +336,16 @@ class CliOptParser {
       }
     }
 
-    // If there is no option definition (including the plain args), then finish
-    //
-    if (_curOptDef == null) {
-      _curOptDef = argOptDef;
-
-      if (_curOptDef == null) {
-        return;
-      }
-    }
-
     // If an option with the given name found then finish
     //
     if (_curIsFound) {
       return;
     }
 
-    // Check whether this is a sub-option
+    // No new option definition found, so set the current one
+    // to the plain args option definition and finish
     //
-    if (_curOptDef!.longSubNames.contains(_curName) ||
-        _curOptDef!.shortSubNames.contains(_curName)) {
-      _curIsSubOpt = true;
-    } else if (_curOptDef?.negLongSubNames.contains(_curName) ?? false) {
-      _curIsPositive = false;
-      _curIsSubOpt = true;
-    }
-
-    // Make sub-option name consumable by the caller
-    //
-    if (_curIsSubOpt) {
-      _curIsFound = true;
-    }
+    _curOptDef = argOptDef;
   }
 
   /// Split an argument into a list of short options and possibly an argument
