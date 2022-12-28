@@ -37,6 +37,9 @@ void main() {
     test('short', () {
       expect('-a'.isCliOptNameValid(), true);
     });
+    test('short - question mark', () {
+      expect('-?'.isCliOptNameValid(), true);
+    });
     test('short negative', () {
       expect('+a'.isCliOptNameValid(), true);
     });

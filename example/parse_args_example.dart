@@ -17,11 +17,20 @@ final _logger = Logger();
 /// Simple filtering class
 ///
 class Filter {
+  /// Flag indicating positive match
+  ///
   bool isPositive;
+
+  /// Glob pattern to match filenames against
+  ///
   Glob glob;
 
+  /// Default constructor
+  ///
   Filter(this.glob, this.isPositive);
 
+  /// Serializer
+  ///
   @override
   String toString() => '${isPositive ? glob : '!($glob)'}';
 }

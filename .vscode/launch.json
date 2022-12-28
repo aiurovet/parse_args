@@ -21,14 +21,14 @@
       ]
     },
     {
-      "name": "Example - Sub-Command Language",
+      "name": "Example - Language (sub-cmd)",
       "program": "parse_sub_cmd_example.dart", "request": "launch", "type": "dart", "cwd": "example",
       "args": [
         "language", "-d", "-dir", "src",
       ]
     },
     {
-      "name": "Example - Sub-Command Publish",
+      "name": "Example - Publish (sub-cmd)",
       "program": "parse_sub_cmd_example.dart", "request": "launch", "type": "dart", "cwd": "example",
       "args": [
         "publish", "-A", "-g",

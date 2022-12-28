@@ -171,6 +171,15 @@ void main() {
         '-b': ['B', 'c'],
       });
     });
+    test('option sequence', () {
+      final opts = parseArgs('a|b,bbb|c|::', ['-c', 'y', '-a', 'z', '-bbb',]);
+      printResult(opts);
+      final optA = opts.where((x) => x.fullName == '-a').first;
+      final optB = opts.where((x) => x.fullName == '-bbb').first;
+      final optC = opts.where((x) => x.fullName == '-c').first;
+      final plain = opts.where((x) => x.fullName == '').first;
+      expect([plain.argNo, optA.argNo, optB.argNo, optC.argNo], [1, 2, 4, 0,]);
+    });
     test('undefined option exception', () {
       expect(() => printResult(parseArgs('a|b', ['-x'])),
           throwsA((e) => e is CliOptUndefinedNameException));

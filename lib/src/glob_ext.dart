@@ -2,8 +2,11 @@ import 'package:file/file.dart';
 import 'package:glob/glob.dart';
 import 'package:parse_args/src/glob_opt.dart';
 
+/// Helper to create glob objects based on file system and default
+/// file system-specific flags
+///
 extension GlobExt on Glob {
-  /// Convert [pattern] string into a proper glob object considering the optional
+  /// Convert [pattern] string into a proper glob object considering the required
   /// file system [fileSystem] and possible extra flags [caseSensitive] and [recursive]
   ///
   static Glob create(FileSystem fileSystem, String? pattern,

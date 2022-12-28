@@ -16,7 +16,7 @@ extension CliOptList on List<CliOpt> {
   /// Add new option and/or value to the list of parsed options
   ///
   bool addCliOpt(List<CliOptDef> optDefs, String? name,
-      {bool isPositive = true, String? value}) {
+      {bool isPositive = true, String? value, int argNo = -1}) {
     var opt = findCliOptByName(name);
     CliOptDef? optDef;
 
@@ -27,7 +27,7 @@ extension CliOptList on List<CliOpt> {
         return false;
       }
 
-      opt = CliOpt(optDef,
+      opt = CliOpt(optDef, argNo: argNo,
           fullName: optDef.name.addPrefix(isPositive: isPositive));
       add(opt);
     }

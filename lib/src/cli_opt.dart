@@ -8,6 +8,13 @@ import 'package:parse_args/src/str_ext.dart';
 /// retrieved from the parsed arguments
 ///
 class CliOpt {
+  /// The first index in the list of the actual arguments
+  /// Is relevant to the first argument containing that option name
+  /// This includes plain arguments as values of an option with empty
+  /// name (useful when the order of options matters)
+  ///
+  final int argNo;
+
   /// Option full name (if this is an option, should contain prefix)
   ///
   late final String fullName;
@@ -22,7 +29,7 @@ class CliOpt {
 
   /// The constructor
   ///
-  CliOpt(this.optDef, {String? fullName}) {
+  CliOpt(this.optDef, {String? fullName, this.argNo = -1}) {
     this.fullName = fullName ?? '';
   }
 

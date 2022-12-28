@@ -16,7 +16,8 @@ extension CliOptName on String {
 
   /// Internal constant for the option name test
   ///
-  static final _isValidRE = RegExp(r'^\s*[\-\+]+[a-z]', caseSensitive: false);
+  static final _isValidRE =
+      RegExp(r'^\s*[\-\+]+[a-z]|^[-]+\?$', caseSensitive: false);
 
   /// Internal constant for the sub-command name test
   ///

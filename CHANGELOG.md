@@ -1,3 +1,16 @@
+## 0.10.0
+
+- Added argNo to CliOpt allowing to check the order of options
+
+## 0.9.4
+
+- Bugfix: '-?' was not recognised as a valid option name,
+- More docos
+
+## 0.9.3
+
+- Correction to documentation
+
 ## 0.9.2
 
 - Changed default CliOptCaseMode from lower to smart, added extra documentation and GlobExt extension for Glob

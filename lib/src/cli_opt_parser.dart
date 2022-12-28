@@ -91,19 +91,23 @@ class CliOptParser {
 
     // Loop through all arguments and parse one by one
     //
+    var argNo = -1;
+
     for (var arg in args) {
+      ++argNo;
+
       _resetInternals();
 
       if (_execStopMode(arg)) {
         continue;
       }
-      if (_execPlainArg(arg)) {
+      if (_execPlainArg(arg, argNo)) {
         continue;
       }
-      if (_execOption(arg)) {
+      if (_execOption(arg, argNo)) {
         continue;
       }
-      _unbundle();
+      argNo = _unbundle(argNo);
     }
 
     parsed.validateValueCounts();
@@ -119,7 +123,7 @@ class CliOptParser {
   /// In more complex case, finds a long option name and possible value then adds those.\
   /// Otherwise, unbundles options
   ///
-  bool _execOption(String arg) {
+  bool _execOption(String arg, int argNo) {
     _setCurNameAndValue(arg);
 
     if (_curOptDef == null) {
@@ -129,7 +133,7 @@ class CliOptParser {
     if (_curName.isEmpty) {
       _curValue = _curFullName;
       _curFullName = '';
-      return _execPlainArg(_curValue, isForced: true);
+      return _execPlainArg(_curValue, argNo, isForced: true);
     }
 
     // If still not found, and the argument is a sub-option name, then
@@ -161,7 +165,7 @@ class CliOptParser {
     if (_curName.isNotEmpty) {
       _curOptDef = optDefs.findCliOptDef(_curName, canThrow: true);
 
-      parsed.addCliOpt(optDefs, _curOptDef!.name, isPositive: _curIsPositive);
+      parsed.addCliOpt(optDefs, _curOptDef!.name, isPositive: _curIsPositive, argNo: argNo);
     }
 
     // If value found, then add it to the current option and make the plain arguments
@@ -178,7 +182,7 @@ class CliOptParser {
 
   /// If an argument is not an option, then add that as a value to the current option.
   ///
-  bool _execPlainArg(String arg, {bool isForced = false}) {
+  bool _execPlainArg(String arg, int argNo, {bool isForced = false}) {
     // If the argument can be treated as an option, then finish
     //
     if (!isForced && arg.isCliOptNameValid(_curStopMode)) {
@@ -222,7 +226,7 @@ class CliOptParser {
 
     // Add value to the current option and finish
     //
-    if (!parsed.addCliOpt(optDefs, _curOptDef!.name, value: arg)) {
+    if (!parsed.addCliOpt(optDefs, _curOptDef!.name, value: arg, argNo: argNo)) {
       _curOptDef = argOptDef;
     }
 
@@ -343,12 +347,13 @@ class CliOptParser {
 
   /// Split an argument into a list of short options and possibly an argument
   ///
-  void _unbundle() {
+  int _unbundle(int argNo) {
     _curOptDef ??= argOptDef;
 
     // Split the option name into an array of single chars
     //
     final chars = _curName.split('');
+    var curArgNo = argNo - 1;
 
     // Analyze every char
     //
@@ -359,7 +364,7 @@ class CliOptParser {
       if (shortNames.contains(char)) {
         _curOptDef = optDefs.findCliOptDef(char);
         final fullShortName = char.toFullCliOptName(_curIsPositive);
-        parsed.addCliOpt(optDefs, fullShortName, isPositive: _curIsPositive);
+        parsed.addCliOpt(optDefs, fullShortName, isPositive: _curIsPositive, argNo: ++curArgNo);
         continue;
       }
 
@@ -380,5 +385,7 @@ class CliOptParser {
       //
       throw CliOptUndefinedNameException(char);
     }
+
+    return curArgNo;
   }
 }

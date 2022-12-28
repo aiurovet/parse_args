@@ -7,6 +7,7 @@ import 'package:thin_logger/thin_logger.dart';
 
 /// Pretty basic singleton for simple FileSystem
 ///
+///
 final _fs = LocalFileSystem();
 
 /// Pretty basic singleton for simple logging

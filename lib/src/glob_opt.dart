@@ -20,8 +20,8 @@ class GlobOpt {
   ///
   var recursive = false;
 
-  /// FileSystem object to link to the glob and touse for
-  /// the default case sensitivity
+  /// FileSystem object to link to the glob and to use for its default case
+  /// sensitivity. It is required in order to encourage the use of a singleton
   ///
   final FileSystem fileSystem;
 
