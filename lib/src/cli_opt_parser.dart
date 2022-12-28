@@ -165,7 +165,8 @@ class CliOptParser {
     if (_curName.isNotEmpty) {
       _curOptDef = optDefs.findCliOptDef(_curName, canThrow: true);
 
-      parsed.addCliOpt(optDefs, _curOptDef!.name, isPositive: _curIsPositive, argNo: argNo);
+      parsed.addCliOpt(optDefs, _curOptDef!.name,
+          isPositive: _curIsPositive, argNo: argNo);
     }
 
     // If value found, then add it to the current option and make the plain arguments
@@ -226,7 +227,8 @@ class CliOptParser {
 
     // Add value to the current option and finish
     //
-    if (!parsed.addCliOpt(optDefs, _curOptDef!.name, value: arg, argNo: argNo)) {
+    if (!parsed.addCliOpt(optDefs, _curOptDef!.name,
+        value: arg, argNo: argNo)) {
       _curOptDef = argOptDef;
     }
 
@@ -364,7 +366,8 @@ class CliOptParser {
       if (shortNames.contains(char)) {
         _curOptDef = optDefs.findCliOptDef(char);
         final fullShortName = char.toFullCliOptName(_curIsPositive);
-        parsed.addCliOpt(optDefs, fullShortName, isPositive: _curIsPositive, argNo: ++curArgNo);
+        parsed.addCliOpt(optDefs, fullShortName,
+            isPositive: _curIsPositive, argNo: ++curArgNo);
         continue;
       }
 

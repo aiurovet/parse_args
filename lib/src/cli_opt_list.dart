@@ -27,7 +27,8 @@ extension CliOptList on List<CliOpt> {
         return false;
       }
 
-      opt = CliOpt(optDef, argNo: argNo,
+      opt = CliOpt(optDef,
+          argNo: argNo,
           fullName: optDef.name.addPrefix(isPositive: isPositive));
       add(opt);
     }
