@@ -1,3 +1,7 @@
+## 0.10.1
+
+- Bugfix: incorrect parsing of options definition string with spaces
+
 ## 0.10.0
 
 - Added argNo to CliOpt allowing to check the order of options

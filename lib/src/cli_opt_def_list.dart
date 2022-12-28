@@ -6,12 +6,16 @@ import 'package:parse_args/parse_args.dart';
 /// Extension methods to manipulate option definitions lists
 ///
 extension CliOptDefList on List<CliOptDef> {
+  /// Regular expression to remove all blank characters: space, tab, newline
+  ///
+  static final _blankRE = RegExp(r'[\s]', multiLine: false);
+
   /// Create list from a single option definitions string
   ///
   static List<CliOptDef> cliOptDefsFromString(
       String optDefStr, CliOptCaseMode caseMode) {
     final result = <CliOptDef>[];
-    final parts = optDefStr.split(RegExp(r'[\n\r\t|]', multiLine: false));
+    final parts = optDefStr.replaceAll(_blankRE, '').split('|');
 
     for (final part in parts) {
       if (part.isNotEmpty) {

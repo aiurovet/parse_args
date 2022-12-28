@@ -97,12 +97,12 @@ class Options {
     final ops = 'and,not,or,case';
 
     final optDefStr = '''
-|q,quiet|v,verbose|?,h,help|access:,:|d,dir:|app-config:|f,force|p,compression:
-|l,filter::>$ops
-|i,inp,inp-files:,:
-|o,out,out-files:,:
-|::>$ops
-''';
+      |q,quiet|v,verbose|?,h,help|access:,:|d,dir:|app-config:|f,force|p,compression:
+      |l,filter::>$ops
+      |i,inp,inp-files:,:
+      |o,out,out-files:,:
+      |::>$ops
+    ''';
 
     final result = parseArgs(optDefStr, args, validate: true);
 
