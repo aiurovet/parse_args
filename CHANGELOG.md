@@ -1,3 +1,7 @@
+## 0.11.1
+
+- Bugfix: prefix should not be passed with the option name to `CliOpt.addValue()`
+
 ## 0.11.0
 
 - Breaking: sub-option-first policy. If option `-a` has a sub-option `-b`, and there is also another major option `-b`, in the following situation `-b` will be treated as a sub-option: `-a -b -c`. Still `-b` will be treated as a major option in `-b -a -c`. This allows mixing options with similar sub-options. For instance, `|p,plain::>and,not,or,p,plain,r,regex|r,regex::>and,not,or,p,plain,r,regex` allows mixing two kinds of patterns with logical operations

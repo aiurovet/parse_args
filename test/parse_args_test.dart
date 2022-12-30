@@ -224,6 +224,18 @@ void main() {
         ]
       });
     });
+    test('short options bundled', () {
+      final map = printResult(parseArgs('''
+          |p,plain::|r,regex::|m,multi,multiline
+          ''', [
+        '-mp',
+        '^(a|b)',
+      ]));
+      expect(map, {
+        '-multiline': [],
+        '-plain': ['^(a|b)']
+      });
+    });
     test('undefined option exception', () {
       expect(() => printResult(parseArgs('a|b', ['-x'])),
           throwsA((e) => e is CliOptUndefinedNameException));

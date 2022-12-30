@@ -366,8 +366,7 @@ class CliOptParser {
       //
       if (shortNames.contains(char)) {
         _curOptDef = optDefs.findCliOptDef(char);
-        final fullShortName = char.toFullCliOptName(_curIsPositive);
-        parsed.addCliOpt(optDefs, fullShortName,
+        parsed.addCliOpt(optDefs, char,
             isPositive: _curIsPositive, argNo: ++curArgNo);
         continue;
       }
