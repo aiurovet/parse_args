@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Alexander Iurovetski
+// Copyright (c) 2022-2023, Alexander Iurovetski
 // All rights reserved under MIT license (see LICENSE file)
 
 import 'package:parse_args/parse_args.dart';
@@ -60,18 +60,20 @@ class CliOpt {
   /// Validating value count
   ///
   void validateValueCount() {
+    final count = values.length;
+
     if (optDef.isFlag) {
-      if (values.isNotEmpty) {
+      if (count > 0) {
         throw CliOptValueUnexpectedException(fullName, values);
       }
       return;
     }
 
-    if (values.isEmpty) {
+    if ((count <= 0) && !optDef.isNoValueAllowed) {
       throw CliOptValueMissingException(fullName);
     }
 
-    if (!optDef.hasManyValues && (values.length > 1)) {
+    if ((count > 1) && !optDef.hasManyValues) {
       throw CliOptValueTooManyException(fullName, values);
     }
   }

@@ -1,6 +1,6 @@
 name: parse_args
 description: A Dart package to parse command-line options simple way and in a portable style (bash, find, java, PowerShell), plus, sub-commands and sub-options
-version: 0.11.1
+version: 0.12.0
 homepage: https://aiurovet.blogspot.com/
 repository: https://github.com/aiurovet/parse_args/
 

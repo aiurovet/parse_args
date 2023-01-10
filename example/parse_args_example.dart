@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Alexander Iurovetski
+// Copyright (c) 2022-2023, Alexander Iurovetski
 // All rights reserved under MIT license (see LICENSE file)
 
 import 'package:file/local.dart';
@@ -230,7 +230,7 @@ OutFiles:   $_outputFiles
   Never usage([String? error]) {
     throw Exception('''
 
-${Options.appName} ${Options.appVersion} (c) 2022 My Name
+${Options.appName} ${Options.appVersion} (c) 2022-2023 My Name
 
 Long description of the application functionality
 

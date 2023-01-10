@@ -1,3 +1,8 @@
+## 0.12.0
+
+- New feature: `:?` and `::?` allow to pass no value
+- Added year 2023 to copyright
+
 ## 0.11.1
 
 - Bugfix: prefix should not be passed with the option name to `CliOpt.addValue()`

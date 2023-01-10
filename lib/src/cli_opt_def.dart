@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Alexander Iurovetski
+// Copyright (c) 2022-2023, Alexander Iurovetski
 // All rights reserved under MIT license (see LICENSE file)
 
 import 'package:parse_args/parse_args.dart';
@@ -10,9 +10,21 @@ class CliOptDef {
   ///
   late final bool isFlag;
 
+  /// If true, then no value allowed (values are optional, useful for plain arguments)
+  ///
+  late final bool isNoValueAllowed;
+
   /// If true, then multiple values expected to follow (either as a delimited list or as separate arguments)
   ///
   late final bool hasManyValues;
+
+  /// The highest number of values allowed
+  ///
+  late final int maxValueCount;
+
+  /// The lowest number of values allowed
+  ///
+  late final int minValueCount;
 
   /// The main option name (the last specified in the option definition)
   ///
@@ -73,9 +85,18 @@ class CliOptDef {
 
     final valueInfoBeg = allNamesStr.indexOf(':');
     isFlag = hasNames && (valueInfoBeg < 0);
+    isNoValueAllowed = allNamesStr.endsWith('?');
 
-    final valueInfoLen =
-        (isFlag || !hasNames ? 0 : allNamesStr.length - valueInfoBeg);
+    var valueInfoLen = 0;
+
+    if (!isFlag && hasNames) {
+      valueInfoLen = (allNamesStr.length - valueInfoBeg);
+
+      if (isNoValueAllowed) {
+        --valueInfoLen;
+      }
+    }
+
     hasManyValues = (valueInfoLen >= 2);
 
     final valueSeparator = (hasManyValues

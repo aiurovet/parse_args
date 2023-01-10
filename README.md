@@ -14,7 +14,7 @@ A getopts-like Dart package to parse command-line options simple way and in a po
 |q,quiet|v,verbose|?,h,help|d,dir:|c,app-config:|f,force|p,compression:
 |l,filter:: >and,c,case   not,  or 
 |i,inp,inp-files:,:
-|o,out,out-files:,:
+|o,out,out-files:,:?
 |::
 ```
 
@@ -29,6 +29,8 @@ A getopts-like Dart package to parse command-line options simple way and in a po
 - By specifying a double-colon `::` you require the respective option to have one or more arguments: `-inp-file abc.txt de.lst fghi.docx`
 
 - By specifying a double-colon with a comma `:,:` inside, you require the following argument to represent a list of values which should be split by comma. The absense of comma means a single value. No more value will be linked to this option. You can use any other character instead of a comma except a pipe and a colon. Example: `-inp-file abc.txt,de.lst fghi.docx` results in two values for the option `-inp-file` followed by one plain argument. The same is achieved by `-inp-file=abc.txt,de.lst fghi.docx`. But `-inp-file abc.txt de.lst,fghi.docx` results in one value for the option `-inp-file` followed by one or two plain arguments depending on whether plain arguments have a value separator too. This discourages mixed lists where sometimes option values are passed as separate arguments, and sometimes as a list of delimited values. However, the list of plain arguments will grow regardless the presence of a value separator.
+
+- By specifying `:?` or `::?` or `:,:?` you allow 0 or 1/many/separated values (useful for making plain arguments optional)
 
 - You can specify multiple option names.
 
@@ -63,7 +65,7 @@ The array of values for the option `-filter` will be: `["-case", "Ab", "Cd", "+c
 The same can be found in the `example/parse_args_example.dart` (there is also another example on the use of sub-commands).
 
 ```dart
-// Copyright (c) 2022, Alexander Iurovetski
+// Copyright (c) 2022-2023, Alexander Iurovetski
 // All rights reserved under MIT license (see LICENSE file)
 
 import 'package:file/local.dart';
@@ -295,7 +297,7 @@ OutFiles:   $_outputFiles
   Never usage([String? error]) {
     throw Exception('''
 
-${Options.appName} ${Options.appVersion} (c) 2022 My Name
+${Options.appName} ${Options.appVersion} (c) 2022-2023 My Name
 
 Long description of the application functionality
 

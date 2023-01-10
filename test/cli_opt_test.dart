@@ -1,4 +1,4 @@
-// Copyright (c) 2022, Alexander Iurovetski
+// Copyright (c) 2022-2023, Alexander Iurovetski
 // All rights reserved under MIT license (see LICENSE file)
 
 import 'package:parse_args/parse_args.dart';
@@ -56,6 +56,12 @@ void main() {
             ..validateValueCount(),
           throwsA((e) => e is CliOptValueMissingException));
     });
+    test('single value - got no value - allowed', () {
+      CliOpt(CliOptDef('a:?', CliOptCaseMode.exact))
+        ..addValue(null)
+        ..validateValueCount();
+      expect(true, true); // no exception
+    });
     test('single value - got a value', () {
       CliOpt(CliOptDef('a:', CliOptCaseMode.exact))
         ..addValue('1')
@@ -73,12 +79,24 @@ void main() {
             ..validateValueCount(),
           throwsA((e) => e is CliOptValueMissingException));
     });
+    test('multiple values - got no value - allowed', () {
+      CliOpt(CliOptDef('a::?', CliOptCaseMode.exact))
+        ..addValue(null)
+        ..validateValueCount();
+      expect(true, true); // no exception
+    });
+    test('list of values - got no value - allowed', () {
+      CliOpt(CliOptDef('a:,:?', CliOptCaseMode.exact))
+        ..addValue(null)
+        ..validateValueCount();
+      expect(true, true); // no exception
+    });
     test('multiple values - got a value', () {
       CliOpt(CliOptDef('a:,:', CliOptCaseMode.exact))
         ..addValue('1')
         ..validateValueCount();
     });
-    test('multiple values - got multiple values', () {
+    test('list of values - got multiple values', () {
       final opt = CliOpt(CliOptDef('a:,:', CliOptCaseMode.exact))
         ..addValue('1,2')
         ..validateValueCount();
