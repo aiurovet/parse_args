@@ -62,4 +62,4 @@ The array of values for the option `-filter` will be: `["-case", "Ab", "Cd", "+c
 
 ## Usage
 
-See under `Example` tab. All sample code files can be located under sub-directory `example`.
+See under the `Example` tab. All sample code files are under the sub-directory `example`.

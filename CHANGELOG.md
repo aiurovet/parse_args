@@ -1,3 +1,7 @@
+## 0.13.1
+
+- Fixed grammar in the readme file
+
 ## 0.13.0
 
 - Removed `GlobExt`, should use `file_ext` package instead: `GlobExt.createGlob()` => `PathExt.toGlob()`
