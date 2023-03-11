@@ -1,3 +1,7 @@
+## 0.13.0
+
+- Removed `GlobExt`, should use `file_ext` package instead: `GlobExt.createGlob()` => `PathExt.toGlob()`
+
 ## 0.12.1
 
 - Re-releasing after missing commit done
