@@ -3,6 +3,8 @@
 
 import 'package:parse_args/parse_args.dart';
 
+/// Shorthand for a sub-commands map
+///
 typedef CliOptSubCmdMap = Map<String, Function(List<String> args)>;
 
 /// Class to break command-line arguments into a sub-command and its arguments
