@@ -1,3 +1,7 @@
+## 0.13.4
+
+- Added missing doc, updated a package
+
 ## 0.13.3
 
 - Upgraded packages
